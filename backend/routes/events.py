@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
 from sqlalchemy.orm import Session
 from fastapi.responses import StreamingResponse
 import io
@@ -9,6 +9,7 @@ from ..core.db import get_db
 from ..model.models import Event as EventModel
 from ..schemas.schemas import EventCreate, EventWithParticipants, EventBase
 from ..dependencies.dependencies import get_current_user
+from ..ai.parser import parse_event_from_image
 
 router = APIRouter()
 
@@ -22,6 +23,16 @@ def get_events(db: Session = Depends(get_db), user=Depends(get_current_user)):
         }
         for e in events
     ]
+
+@router.post("/parse_image")
+async def parse_image(file: UploadFile = File(...), user=Depends(get_current_user)):
+    if user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin privileges required")
+    
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="File must be an image")
+    
+    return await parse_event_from_image(file)
 
 @router.post("/create")
 def create_event(event: EventCreate, db: Session = Depends(get_db), user=Depends(get_current_user)):
