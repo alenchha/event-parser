@@ -98,12 +98,28 @@ def patch_event(event_id: int, partial_event: dict, db: Session = Depends(get_db
     db_event = db.query(EventModel).filter(EventModel.id == event_id).first()
     if not db_event:
         raise HTTPException(status_code=404, detail="Event not found")
-    allowed_fields = {"title", "date", "time", "place", "description", "age_limit", "event_type"}
+    allowed_fields = {
+        "title",
+        "date",
+        "time",
+        "place",
+        "capacity",
+        "description",
+        "age_limit",
+        "event_type",
+        "image_url",
+    }
+
     updated = False
+    required_fields = {"title", "date", "time", "place", "capacity"}
+
     for key, value in partial_event.items():
-        if key in allowed_fields and value is not None:
+        if key in allowed_fields:
+            if key in required_fields and (value is None or value == ""):
+                raise HTTPException(status_code=400, detail=f"{key} обязательно")
             setattr(db_event, key, value)
             updated = True
+
     if not updated:
         raise HTTPException(status_code=400, detail="No valid fields to update")
     db.commit()

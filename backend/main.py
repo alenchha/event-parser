@@ -1,3 +1,4 @@
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 from backend.core.db import Base, engine
 from backend.core.middleware import auth_middleware
@@ -7,6 +8,14 @@ from backend.routes import health, events, users, auth
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Event Parser API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.middleware("http")(auth_middleware)
 

@@ -35,6 +35,7 @@ class Event(Base):
     description = Column(String, nullable=True)
     age_limit = Column(Integer, nullable=True)
     event_type = Column(String, nullable=True)
+    image_url = Column(String, nullable=True)
 
     participants = relationship(
         "User",

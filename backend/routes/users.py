@@ -8,11 +8,11 @@ from ..routes.auth import get_password_hash, verify_password
 
 router = APIRouter()
 
-@router.get("/users/me", response_model=UserWithEvents)
+@router.get("/me", response_model=UserWithEvents)
 def get_my_profile(current_user: UserModel = Depends(get_current_user)):
     return current_user
 
-@router.delete("/users/me")
+@router.delete("/me")
 def delete_my_account(
     db: Session = Depends(get_db),
     current_user: UserModel = Depends(get_current_user),
@@ -21,7 +21,7 @@ def delete_my_account(
     db.commit()
     return {"message": "User deleted successfully"}
 
-@router.patch("/users/me/password")
+@router.patch("/me/password")
 def change_my_password(
     passwords: PasswordChange,
     db: Session = Depends(get_db),

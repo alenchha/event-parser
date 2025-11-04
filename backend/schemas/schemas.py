@@ -23,6 +23,7 @@ class EventBase(BaseModel):
     description: Optional[str] = None
     age_limit: Optional[int] = None
     event_type: Optional[str] = None
+    image_url: Optional[str] = None
     registration_count: Optional[int] = None
 
     class Config:
@@ -32,7 +33,11 @@ class EventWithParticipants(EventBase):
     participants: List[UserBase] = []
 
 class UserWithEvents(UserBase):
+    role: str
     registered_events: List[EventBase] = []
+
+    class Config:
+        from_attributes = True
 
 class Token(BaseModel):
     access_token: str
@@ -47,6 +52,7 @@ class EventCreate(BaseModel):
     description: Optional[str] = None
     age_limit: Optional[int] = None
     event_type: Optional[str] = None
+    image_url: Optional[str] = None
 
     @field_validator("date")
     def validate_date_format(cls, value):
