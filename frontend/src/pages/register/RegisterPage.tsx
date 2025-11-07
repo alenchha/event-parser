@@ -24,7 +24,7 @@ export const RegisterPage = () => {
             await registerUser({ username, password });
             setUsername("");
             setPassword("");
-            navigate("/login");
+            navigate("/");
         } catch (error: unknown) {
             console.error("Ошибка регистрации:", error);
 
@@ -124,7 +124,7 @@ export const RegisterPage = () => {
                         <Typography
                             variant="body2"
                             sx={{ mt: 2, color: "#222222", fontSize: 16, cursor: "pointer" }}
-                            onClick={() => navigate("/login")}
+                            onClick={() => navigate("/")}
                         >
                             Already have an account? Login →
                         </Typography>

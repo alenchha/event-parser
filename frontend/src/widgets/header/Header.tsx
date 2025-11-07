@@ -28,7 +28,7 @@ export const Header: React.FC = () => {
             })
             .catch(() => {
                 localStorage.removeItem("token");
-                navigate("/login");
+                navigate("/");
             });
     }, [navigate]);
 
@@ -54,14 +54,14 @@ export const Header: React.FC = () => {
     const confirmLogout = () => {
         localStorage.removeItem("token");
         setOpenLogoutConfirm(false);
-        navigate("/login");
+        navigate("/");
     };
 
     const submitDelete = async () => {
         try {
             await deleteMyAccount();
             localStorage.removeItem("token");
-            window.location.href = "/login";
+            window.location.href = "/";
         } catch (e: unknown) {
             setErrorMessage(getErrorMessage(e, "Не удалось удалить аккаунт"));
             setSnackbarOpen(true);

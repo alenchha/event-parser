@@ -12,21 +12,18 @@ export const EventsPage = () => {
     const [searchText, setSearchText] = useState("");
     const [dateFrom, setDateFrom] = useState<string>("");
     const [dateTo, setDateTo] = useState<string>("");
-
-    // debounced значения
     const [debouncedAge, setDebouncedAge] = useState<number | null>(ageFilter);
     const [debouncedSearch, setDebouncedSearch] = useState(searchText);
     const [debouncedDateFrom, setDebouncedDateFrom] = useState(dateFrom);
     const [debouncedDateTo, setDebouncedDateTo] = useState(dateTo);
 
-    // debounce эффект
     useEffect(() => {
         const handler = setTimeout(() => {
             setDebouncedAge(ageFilter);
             setDebouncedSearch(searchText);
             setDebouncedDateFrom(dateFrom);
             setDebouncedDateTo(dateTo);
-        }, 300); // задержка 300ms
+        }, 300);
 
         return () => clearTimeout(handler);
     }, [ageFilter, searchText, dateFrom, dateTo]);
@@ -64,6 +61,8 @@ export const EventsPage = () => {
 
         return matchesAge && matchesSearch && matchesDateFrom && matchesDateTo;
     });
+
+    const hasActiveFilters = debouncedAge !== null || debouncedSearch !== "" || debouncedDateFrom !== "" || debouncedDateTo !== "";
 
     return (
         <Box >
@@ -138,84 +137,99 @@ export const EventsPage = () => {
                             />
                         </Box>
 
-                        <Box
-                            sx={{
-                                display: "grid",
-                                gridTemplateColumns: {
-                                    xs: "1fr",
-                                    sm: "repeat(2, 340px)",
-                                    md: "repeat(4, 340px)",
-                                },
-                                gap: "30px",
-                                minWidth: "calc(4 * 340px + 3 * 30px)",
-                                maxWidth: 1700,
-                            }}
-                        >
-                            {filteredEvents.map(event => (
-                                <Box
-                                    key={event.id}
-                                    sx={{
-                                        width: 340,
-                                        height: 340,
-                                        borderRadius: 2,
-                                        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                                        overflow: "hidden",
-                                        background: event.image_url
-                                            ? `url(${event.image_url}) center/cover no-repeat`
-                                            : "linear-gradient(0.523turn, rgba(214,255,0,1) 0%, rgba(255,0,127,1) 100%)",
-                                        backgroundSize: "cover",
-                                        backgroundPosition: "center",
-                                        position: "relative",
-                                    }}
-                                >
-                                    <a
-                                        href={`/events/${event.id}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        style={{ textDecoration: "none", display: "block", width: "100%", height: "100%" }}
+                        {filteredEvents.length === 0 ? (
+                            <Box sx={{ textAlign: "center", py: 8, minWidth: "calc(4 * 340px + 3 * 30px)", maxWidth: 1200 }}>
+                                <Typography variant="h6" color="#222222" gutterBottom>
+                                    {hasActiveFilters 
+                                        ? "По заданным фильтрам событий не найдено" 
+                                        : "Нет предстоящих событий"}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    {hasActiveFilters 
+                                        ? "Попробуйте изменить параметры фильтрации" 
+                                        : "Скоро появятся новые события"}
+                                </Typography>
+                            </Box>
+                        ) : (
+                            <Box
+                                sx={{
+                                    display: "grid",
+                                    gridTemplateColumns: {
+                                        xs: "1fr",
+                                        sm: "repeat(2, 340px)",
+                                        md: "repeat(4, 340px)",
+                                    },
+                                    gap: "30px",
+                                    minWidth: "calc(4 * 340px + 3 * 30px)",
+                                    maxWidth: 1700,
+                                }}
+                            >
+                                {filteredEvents.map(event => (
+                                    <Box
+                                        key={event.id}
+                                        sx={{
+                                            width: 340,
+                                            height: 340,
+                                            borderRadius: 2,
+                                            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                                            overflow: "hidden",
+                                            background: event.image_url
+                                                ? `url(${event.image_url}) center/cover no-repeat`
+                                                : "linear-gradient(0.523turn, rgba(214,255,0,1) 0%, rgba(255,0,127,1) 100%)",
+                                            backgroundSize: "cover",
+                                            backgroundPosition: "center",
+                                            position: "relative",
+                                        }}
                                     >
-                                        <Box
-                                            sx={{
-                                                position: "absolute",
-                                                bottom: 0,
-                                                left: 0,
-                                                width: "100%",
-                                                height: 75,
-                                                bgcolor: "rgba(0,0,0,0.6)",
-                                                px: 2,
-                                                py: 1,
-                                                display: "flex",
-                                                flexDirection: "column",
-                                                justifyContent: "center",
-                                                borderBottomLeftRadius: 10,
-                                                borderBottomRightRadius: 10,
-                                            }}
+                                        <a
+                                            href={`/events/${event.id}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            style={{ textDecoration: "none", display: "block", width: "100%", height: "100%" }}
                                         >
-                                            <Typography sx={{ fontSize: 20, fontWeight: 300, color: "#fefefe" }} noWrap>
-                                                {event.title}
-                                            </Typography>
-                                            <Typography sx={{ fontSize: 14, color: "#fefefe" }} noWrap>
-                                                {event.date} — {event.place}
-                                            </Typography>
-                                        </Box>
-                                        <Box
-                                            sx={{
-                                                position: "absolute",
-                                                bottom: 24,
-                                                right: 12,
-                                                fontSize: 18,
-                                                fontWeight: 500,
-                                                color: "#fefefe",
-                                                opacity: 0.8,
-                                                cursor: "pointer",
-                                            }}
-                                        >
-                                            ➤
-                                        </Box>
-                                    </a>
-                                </Box>
-                            ))}
-                        </Box>
+                                            <Box
+                                                sx={{
+                                                    position: "absolute",
+                                                    bottom: 0,
+                                                    left: 0,
+                                                    width: "100%",
+                                                    height: 75,
+                                                    bgcolor: "rgba(0,0,0,0.6)",
+                                                    px: 2,
+                                                    py: 1,
+                                                    display: "flex",
+                                                    flexDirection: "column",
+                                                    justifyContent: "center",
+                                                    borderBottomLeftRadius: 10,
+                                                    borderBottomRightRadius: 10,
+                                                }}
+                                            >
+                                                <Typography sx={{ fontSize: 20, fontWeight: 300, color: "#fefefe" }} noWrap>
+                                                    {event.title}
+                                                </Typography>
+                                                <Typography sx={{ fontSize: 14, color: "#fefefe" }} noWrap>
+                                                    {event.date} — {event.place}
+                                                </Typography>
+                                            </Box>
+                                            <Box
+                                                sx={{
+                                                    position: "absolute",
+                                                    bottom: 24,
+                                                    right: 12,
+                                                    fontSize: 18,
+                                                    fontWeight: 500,
+                                                    color: "#fefefe",
+                                                    opacity: 0.8,
+                                                    cursor: "pointer",
+                                                }}
+                                            >
+                                                ➤
+                                            </Box>
+                                        </a>
+                                    </Box>
+                                ))}
+                            </Box>
+                        )}
                     </>
                 )}
             </Box>

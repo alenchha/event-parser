@@ -45,10 +45,10 @@ export const CreateEventPage = () => {
             try {
                 const data = await getCurrentUser();
                 if (data.role !== "admin") {
-                    window.location.href = "/login";
+                    window.location.href = "/";
                 }
             } catch {
-                window.location.href = "/login";
+                window.location.href = "/";
             } finally {
                 setLoading(false);
             }
