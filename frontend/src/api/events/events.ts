@@ -34,16 +34,19 @@ export const getEvents = async (): Promise<Event[]> => {
     }
 };
 
-export async function getEventById(id: number) {
-    const res = await fetch(`${API_URL}/events/${id}`, {
-        headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token")}`
+export const getEventById = async (id: number): Promise<Event> => {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("No token found");
+
+    try {
+        const response = await axios.get<Event>(`${API_URL}/events/${id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data;
+    } catch (err: unknown) {
+        if (axios.isAxiosError(err)) {
+            if (err.response) throw err.response.data;
         }
-    });
-
-    if (!res.ok) {
-        throw new Error("Event not found");
+        throw err;
     }
-
-    return res.json();
-}
+};
