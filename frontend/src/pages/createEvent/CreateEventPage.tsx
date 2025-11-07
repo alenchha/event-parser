@@ -45,7 +45,7 @@ export const CreateEventPage = () => {
             try {
                 const data = await getCurrentUser();
                 if (data.role !== "admin") {
-                    window.location.href = "/";
+                    window.location.href = "/events";
                 }
             } catch {
                 window.location.href = "/";

@@ -122,7 +122,6 @@ export const Header: React.FC = () => {
                     <AccountCircleIcon sx={{ fontSize: 32, m: 1 }} />
                 </Box>
 
-                {/* Меню аккаунта */}
                 <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
                     <MenuItem onClick={handleLogout}>Выйти</MenuItem>
                     <MenuItem onClick={() => { setOpenChangePassword(true); handleMenuClose(); }}>Сменить пароль</MenuItem>
@@ -136,7 +135,6 @@ export const Header: React.FC = () => {
                 background: "linear-gradient(0.322turn, rgba(214,255,0,1) 0%, rgba(255,0,127,1) 100%)",
             }} />
 
-            {/* Диалог подтверждения выхода */}
             <Dialog open={openLogoutConfirm} onClose={() => setOpenLogoutConfirm(false)}>
                 <DialogTitle sx={{ fontWeight: 300 }}>Вы уверены, что хотите выйти?</DialogTitle>
                 <DialogActions>
@@ -145,7 +143,6 @@ export const Header: React.FC = () => {
                 </DialogActions>
             </Dialog>
 
-            {/* Диалог смены пароля */}
             <Dialog
                 open={openDelete}
                 onClose={() => setOpenDelete(false)}
