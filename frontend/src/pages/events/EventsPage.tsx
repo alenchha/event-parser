@@ -52,7 +52,7 @@ export const EventsPage = () => {
     const parseDateInput = (value: string) => value ? new Date(value) : null;
 
     const filteredEvents = events.filter(ev => {
-        const evDate = new Date(ev.date.split(".").reverse().join("-")); // перевод в YYYY-MM-DD
+        const evDate = new Date(ev.date.split(".").reverse().join("-"));
 
         const matchesAge = !debouncedAge || (ev.age_limit && ev.age_limit <= debouncedAge);
         const matchesSearch = !debouncedSearch || ev.title.toLowerCase().includes(debouncedSearch.toLowerCase());
