@@ -12,3 +12,9 @@
 2) В терминале введите команду
     Не заходя в папку backend:
     uvicorn backend.main:app --reload
+
+Чтобы запустить frontend, нужно перейти в папку frontend: cd .\frontend\
+
+1) Установим зависимости: npm install 
+
+2) Запустим фронт: npm run dev
