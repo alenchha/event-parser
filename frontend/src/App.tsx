@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { LoginPage, RegisterPage, EventsPage, EventDetailPage, ProfilePage, CreateEventPage } from './pages'
+import { LoginPage, RegisterPage, EventsPage, EventDetailPage, ProfilePage, CreateEventPage, UsersPage } from './pages'
 import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
 import { ProtectedRoute } from './app/routes/ProtectedRoute';
+import { AdminRoute } from './app/routes/AdminRoute';
 import "@fontsource/oswald/400.css";
 import "@fontsource/oswald/500.css";
 import "@fontsource/oswald/700.css";
@@ -48,7 +49,19 @@ function App() {
                         path="/upload"
                         element={
                             <ProtectedRoute>
-                                <CreateEventPage />
+                                <AdminRoute>
+                                    <CreateEventPage />
+                                </AdminRoute>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/users"
+                        element={
+                            <ProtectedRoute>
+                                <AdminRoute>
+                                    <UsersPage />
+                                </AdminRoute>
                             </ProtectedRoute>
                         }
                     />

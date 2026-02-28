@@ -115,6 +115,12 @@ export const Header: React.FC = () => {
                             Загрузить постер & Создать событие
                         </Typography>
                     }
+
+                    {role === "admin" &&
+                        <Typography sx={{ cursor: "pointer", fontSize: 18 }} onClick={() => navigate("/users")}>
+                            Все пользователи
+                        </Typography>
+                    }
                 </Box>
 
                 <Box sx={{ display: "flex", alignItems: "center", cursor: "pointer" }} onClick={handleMenuOpen}>

@@ -1,10 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
     Box,
     Typography,
     TextField,
     Button,
-    CircularProgress,
     Snackbar,
     Alert,
     Card,
@@ -14,7 +13,6 @@ import {
 import { Header } from "../../widgets/header";
 import { parseEventImage, createEvent } from "../../api/admin/events";
 import type { EventData } from "../../api/admin/events";
-import { getCurrentUser } from "../../api/users/users";
 
 interface EventFormData extends Partial<EventData> {
     capacity?: number | null;
@@ -22,7 +20,6 @@ interface EventFormData extends Partial<EventData> {
 }
 
 export const CreateEventPage = () => {
-    const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
@@ -39,22 +36,6 @@ export const CreateEventPage = () => {
         event_type: "",
         image_url: "",
     });
-
-    useEffect(() => {
-        const loadUser = async () => {
-            try {
-                const data = await getCurrentUser();
-                if (data.role !== "admin") {
-                    window.location.href = "/events";
-                }
-            } catch {
-                window.location.href = "/";
-            } finally {
-                setLoading(false);
-            }
-        };
-        loadUser();
-    }, []);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) setFile(e.target.files[0]);
@@ -140,26 +121,6 @@ export const CreateEventPage = () => {
             setSubmitting(false);
         }
     };
-
-    if (loading) {
-        return (
-            <Box
-                sx={{
-                    position: "fixed",
-                    top: 0,
-                    left: 0,
-                    width: "100vw",
-                    height: "100vh",
-                    bgcolor: "rgba(255,255,255,0.5)",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                }}
-            >
-                <CircularProgress sx={{ size: 40, color: "#222222" }} />
-            </Box>
-        );
-    }
 
     return (
         <>

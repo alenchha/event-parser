@@ -36,20 +36,12 @@ async def auth_middleware(request: Request, call_next):
         if not username:
             return JSONResponse(status_code=401, content={"detail": "Invalid token"})
 
-        # Используем контекстный менеджер для сессии
         with SessionLocal() as db:
             user = db.query(User).filter(User.username == username).first()
             if not user:
                 return JSONResponse(status_code=401, content={"detail": "User not found"})
 
             request.state.user = user
-
-            if request.method in ["PATCH", "DELETE"]:
-                if re.fullmatch(r"/events/\d+", request.url.path) and user.role != "admin":
-                    return JSONResponse(status_code=403, content={"detail": "Admin privileges required"})
-
-            if request.url.path == "/events/create" and user.role != "admin":
-                return JSONResponse(status_code=403, content={"detail": "Admin privileges required"})
 
     except JWTError:
         return JSONResponse(status_code=401, content={"detail": "Invalid token"})
