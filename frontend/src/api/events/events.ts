@@ -1,6 +1,5 @@
 import axios from "axios";
-
-const API_URL = import.meta.env.VITE_BACKEND_URL;
+import apiClient from '../axiosConfig';
 
 export interface Event {
     id: number;
@@ -18,13 +17,9 @@ export interface Event {
 }
 
 export const getEvents = async (): Promise<Event[]> => {
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error("No token found");
 
     try {
-        const response = await axios.get<Event[]>(`${API_URL}/events/`, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await apiClient.get<Event[]>('/events');
         return response.data;
     } catch (err: unknown) {
         if (axios.isAxiosError(err)) {
@@ -35,13 +30,8 @@ export const getEvents = async (): Promise<Event[]> => {
 };
 
 export const getEventById = async (id: number): Promise<Event> => {
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error("No token found");
-
     try {
-        const response = await axios.get<Event>(`${API_URL}/events/${id}`, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await apiClient.get<Event>(`/events/${id}`);
         return response.data;
     } catch (err: unknown) {
         if (axios.isAxiosError(err)) {

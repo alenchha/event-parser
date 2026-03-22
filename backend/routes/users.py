@@ -4,7 +4,7 @@ from ..core.db import get_db
 from ..model.models import User as UserModel
 from ..schemas.schemas import UserWithEvents, PasswordChange
 from ..dependencies.dependencies import get_current_user
-from ..routes.auth import get_password_hash, verify_password
+from ..core.config import get_password_hash, verify_password
 
 router = APIRouter()
 

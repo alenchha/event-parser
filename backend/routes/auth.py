@@ -1,57 +1,107 @@
-from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
-from jose import jwt
-from passlib.context import CryptContext
-from datetime import datetime, timedelta
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from typing import Optional
 
 from ..core.db import get_db
+from ..schemas.schemas import UserCreate, Token, RefreshTokenRequest
+from ..dependencies.dependencies import get_current_user
+from ..services.auth_service import AuthService
 from ..model.models import User as UserModel
-from ..schemas.schemas import UserCreate, Token
 
 router = APIRouter()
 
-SECRET_KEY = "supersecretkey"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+def set_refresh_token_cookie(response: Response, refresh_token: str):
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        max_age=7 * 24 * 60 * 60,
+        path="/"
+    )
 
-pwd_context = CryptContext(schemes=["sha256_crypt"], deprecated="auto")
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
-
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
-    to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
-
-def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+def clear_refresh_token_cookie(response: Response):
+    response.delete_cookie(key="refresh_token", path="/")
 
 @router.post("/register")
 def register(user: UserCreate, db: Session = Depends(get_db)):
-    existing_user = db.query(UserModel).filter(UserModel.username == user.username).first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="User already exists")
-    db_user = UserModel(
-        username=user.username,
-        password=get_password_hash(user.password)
-    )
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return {"message": "User registered successfully", "user_id": db_user.id}
+    auth_service = AuthService(db)
+    
+    try:
+        new_user = auth_service.register_user(user)
+        return {
+            "message": "User registered successfully", 
+            "user_id": new_user.id
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.post("/login", response_model=Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = db.query(UserModel).filter(UserModel.username == form_data.username).first()
-    if not user or not verify_password(form_data.password, user.password):
+def login(
+    response: Response,
+    request: Request,
+    form_data: OAuth2PasswordRequestForm = Depends(), 
+    db: Session = Depends(get_db)
+):
+    auth_service = AuthService(db)
+    user = auth_service.authenticate_user(form_data.username, form_data.password)
+    if not user:
         raise HTTPException(status_code=401, detail="Incorrect username or password")
-    access_token = create_access_token(
-        {"sub": user.username},
-        timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    )
-    return {"access_token": access_token, "token_type": "bearer"}
+
+    user_agent = request.headers.get("user-agent")
+    access_token, refresh_token = auth_service.create_tokens(user, user_agent)
+
+    set_refresh_token_cookie(response, refresh_token)
+    
+    return {
+        "access_token": access_token,
+        "token_type": "bearer"
+    }
+
+@router.post("/refresh", response_model=Token)
+async def refresh_token(
+    request: Request,
+    response: Response,
+    db: Session = Depends(get_db)
+):
+    auth_service = AuthService(db)
+    refresh_token = request.cookies.get("refresh_token")
+
+    print(f"Refresh token from cookie: {refresh_token}")
+
+    if not refresh_token:
+        raise HTTPException(status_code=401, detail="Refresh token not found")
+    
+    try:
+        user_agent = request.headers.get("user-agent")
+        new_access_token, new_refresh_token = auth_service.refresh_tokens(
+            refresh_token, user_agent
+        )
+
+        set_refresh_token_cookie(response, new_refresh_token)
+        
+        return {
+            "access_token": new_access_token,
+            "token_type": "bearer"
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+
+@router.post("/logout")
+def logout(
+    response: Response,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user)
+):
+    auth_service = AuthService(db)
+    refresh_token = request.cookies.get("refresh_token")
+    
+    if refresh_token:
+        auth_service.logout(refresh_token)
+    
+    clear_refresh_token_cookie(response)
+    
+    return {"message": "Successfully logged out"}

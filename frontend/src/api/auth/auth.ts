@@ -1,6 +1,5 @@
 import axios from "axios";
-
-const API_URL = import.meta.env.VITE_BACKEND_URL;
+import apiClient from '../axiosConfig';
 
 interface RegisterRequest {
     username: string;
@@ -10,11 +9,7 @@ type RegisterResponse = string;
 
 export const registerUser = async (data: RegisterRequest): Promise<RegisterResponse> => {
     try {
-        const response = await axios.post<RegisterResponse>(`${API_URL}/auth/register`, data, {
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
+        const response = await apiClient.post<RegisterResponse>('/auth/register', data);
         return response.data;
     } catch (err: unknown) {
         if (axios.isAxiosError(err)) {
@@ -31,6 +26,10 @@ interface LoginRequest {
     password: string;
 }
 
+export interface RefreshTokenRequest {
+    refresh_token: string;
+}
+
 interface LoginResponse {
     access_token: string;
     token_type: string;
@@ -43,16 +42,39 @@ export const loginUser = async (data: LoginRequest): Promise<LoginResponse> => {
         formData.append("username", data.username);
         formData.append("password", data.password);
 
-        const response = await axios.post<LoginResponse>(`${API_URL}/auth/login`, formData, {
+        const response = await apiClient.post<LoginResponse>('/auth/login', formData, {
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
             },
+            withCredentials: true,
         });
 
         return response.data;
     } catch (err: unknown) {
         if (axios.isAxiosError(err)) {
             if (err.response) {
+                throw err.response.data;
+            }
+        }
+        throw err;
+    }
+};
+
+export const refreshToken = async () => {
+    const response = await apiClient.post("/auth/refresh");
+    return response.data;
+};
+
+export const logoutUser = async (): Promise<{ message: string }> => {
+    try {
+        const response = await apiClient.post<{ message: string }>('/auth/logout', {}, {
+            withCredentials: true,
+        });
+
+        return response.data;
+    } catch (err: unknown) {
+        if (axios.isAxiosError(err)) {
+            if (err.response?.data) {
                 throw err.response.data;
             }
         }

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import logo from '../../../public/logo.png';
 import log1 from'../../../public/log1.webp';
 import log2 from '../../../public/log2.webp';
-import { loginUser } from "../../api/auth/auth";
+import { useAuth } from "../../context/AuthContext";
 
 interface ErrorResponse {
     detail?: string | string[];
@@ -15,38 +15,31 @@ export const LoginPage = () => {
     const [password, setPassword] = useState("");
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
-    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
+    const { login, isLoading } = useAuth();
 
     const handleLogin = async () => {
-        setLoading(true);
         try {
-            const data = await loginUser({ username, password });
-            localStorage.setItem("token", data.access_token);
-            setUsername("");
-            setPassword("");
+            await login(username, password);
             navigate("/events");
         } catch (error: unknown) {
             console.error("Ошибка входа:", error);
-
             const err = error as ErrorResponse;
             setSnackbarMessage(
                 typeof err.detail === "string"
                     ? err.detail
                     : Array.isArray(err.detail)
                     ? err.detail.join(", ")
-                    : "Registration failed"
+                    : "Login failed"
             );
             setSnackbarOpen(true);
-        } finally {
-            setLoading(false);
         }
     };
 
     return (
         <>
-            <Grid container sx={{ minHeight: "100vh", bgcolor: "#FAFAFA" }}>
+            <Grid container sx={{ minHeight: "100vh", minWidth: "100vw", bgcolor: "#FAFAFA" }}>
                 <Grid
                     gridColumn={{ xs: "span 12", md: "span 6" }}
                     sx={{
@@ -204,7 +197,7 @@ export const LoginPage = () => {
                     {snackbarMessage}
                 </Alert>
             </Snackbar>
-            {loading && (
+            {isLoading && (
                 <Box
                     sx={{
                         position: "fixed",

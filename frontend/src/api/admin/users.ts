@@ -1,7 +1,6 @@
 import axios from "axios";
 import type { CurrentUserResponse } from "../users/users";
-
-const API_URL = import.meta.env.VITE_BACKEND_URL;
+import apiClient from '../axiosConfig';
 
 export interface ChangeRoleRequest {
     new_role: string;
@@ -14,15 +13,8 @@ export interface ChangeRoleResponse {
 }
 
 export const getUsers = async (): Promise<CurrentUserResponse[]> => {
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error("No token found");
-
     try {
-        const response = await axios.get<CurrentUserResponse[]>(`${API_URL}/admin/users`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
+        const response = await apiClient.get<CurrentUserResponse[]>('/admin/users');
         return response.data;
     } catch (err: unknown) {
         if (axios.isAxiosError(err)) {
@@ -33,18 +25,12 @@ export const getUsers = async (): Promise<CurrentUserResponse[]> => {
 };
 
 export const changeUserRole = async (userId: number, new_role: string): Promise<ChangeRoleResponse> => {
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error("No token found");
-
     try {
-        const response = await axios.put<ChangeRoleResponse>(
-            `${API_URL}/admin/users/${userId}/role`,
+        const response = await apiClient.put<ChangeRoleResponse>(
+            `/admin/users/${userId}/role`,
             null,
             {
                 params: { new_role },
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
             }
         );
         return response.data;

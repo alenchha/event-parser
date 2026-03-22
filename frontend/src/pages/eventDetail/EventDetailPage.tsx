@@ -94,7 +94,7 @@ export const EventDetailPage = () => {
 
     return (
         <>
-            <Box sx={{ minHeight: "100vh", backgroundColor: "#FAFAFA" }}>
+            <Box sx={{ minHeight: "100vh", minWidth: "100vw", backgroundColor: "#FAFAFA" }}>
                 <Header />
                 <Box sx={{ 
                         display: "flex", 

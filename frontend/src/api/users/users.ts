@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_BACKEND_URL;
+import apiClient from '../axiosConfig';
 
 export interface UserEvent {
     id: number;
@@ -18,15 +18,8 @@ export interface CurrentUserResponse {
 }
 
 export const getCurrentUser = async (): Promise<CurrentUserResponse> => {
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error("No token found");
-
     try {
-        const response = await axios.get<CurrentUserResponse>(`${API_URL}/users/me`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
+        const response = await apiClient.get<CurrentUserResponse>('/users/me');
         return response.data;
     } catch (err: unknown) {
         if (axios.isAxiosError(err)) {
@@ -37,22 +30,14 @@ export const getCurrentUser = async (): Promise<CurrentUserResponse> => {
 };
 
 export const changePassword = async (old_password: string, new_password: string) => {
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error("No token");
-
-    const res = await axios.patch(`${API_URL}/users/me/password`,
-        { old_password, new_password },
-        { headers: { Authorization: `Bearer ${token}` } }
-    );
-    return res.data;
+    const response = await apiClient.patch('/users/me/password', {
+        old_password,
+        new_password
+    });
+    return response.data;
 };
 
 export const deleteMyAccount = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error("No token");
-
-    const res = await axios.delete(`${API_URL}/users/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-    });
-    return res.data;
+    const response = await apiClient.delete('/users/me');
+    return response.data;
 };

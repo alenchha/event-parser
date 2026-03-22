@@ -3,14 +3,14 @@ import { Box, Typography, Dialog, DialogTitle, DialogActions, DialogContent,
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from '../../../public/logo.png';
-import { getCurrentUser, changePassword, deleteMyAccount } from "../../api/users/users";
+import { changePassword, deleteMyAccount } from "../../api/users/users";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import axios from "axios";
+import { useAuth } from "../../context/AuthContext";
 
 export const Header: React.FC = () => {
     const navigate = useNavigate();
-    const [role, setRole] = useState<"admin" | "user">("user");
-    const [userName, setUserName] = useState("");
+    const { user, logout, isLoading } = useAuth();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [openLogoutConfirm, setOpenLogoutConfirm] = useState(false);
     const [openDelete, setOpenDelete] = useState(false);
@@ -21,16 +21,11 @@ export const Header: React.FC = () => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
 
     useEffect(() => {
-        getCurrentUser()
-            .then(data => {
-                setRole(data.role);
-                setUserName(data.username);
-            })
-            .catch(() => {
-                localStorage.removeItem("token");
-                navigate("/");
-            });
-    }, [navigate]);
+        if (!isLoading && !user) {
+            navigate("/");
+        }
+    }, [user, isLoading, navigate]);
+
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget);
     const handleMenuClose = () => setAnchorEl(null);
@@ -51,8 +46,8 @@ export const Header: React.FC = () => {
         return defaultMsg;
     };
 
-    const confirmLogout = () => {
-        localStorage.removeItem("token");
+    const confirmLogout = async () => {
+        await logout();
         setOpenLogoutConfirm(false);
         navigate("/");
     };
@@ -60,7 +55,7 @@ export const Header: React.FC = () => {
     const submitDelete = async () => {
         try {
             await deleteMyAccount();
-            localStorage.removeItem("token");
+            await logout();
             window.location.href = "/";
         } catch (e: unknown) {
             setErrorMessage(getErrorMessage(e, "Не удалось удалить аккаунт"));
@@ -110,13 +105,13 @@ export const Header: React.FC = () => {
                         Аккаунт
                     </Typography>
 
-                    {role === "admin" &&
+                    {user?.role === "admin" &&
                         <Typography sx={{ cursor: "pointer", fontSize: 18 }} onClick={() => navigate("/upload")}>
                             Загрузить постер & Создать событие
                         </Typography>
                     }
 
-                    {role === "admin" &&
+                    {user?.role === "admin" &&
                         <Typography sx={{ cursor: "pointer", fontSize: 18 }} onClick={() => navigate("/users")}>
                             Все пользователи
                         </Typography>
@@ -124,7 +119,7 @@ export const Header: React.FC = () => {
                 </Box>
 
                 <Box sx={{ display: "flex", alignItems: "center", cursor: "pointer" }} onClick={handleMenuOpen}>
-                    <Typography sx={{ fontSize: 18 }}>{userName}</Typography>
+                    <Typography sx={{ fontSize: 18 }}>{user?.username}</Typography>
                     <AccountCircleIcon sx={{ fontSize: 32, m: 1 }} />
                 </Box>
 

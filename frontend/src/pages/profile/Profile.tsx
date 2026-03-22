@@ -112,7 +112,7 @@ export const ProfilePage = () => {
         <>
             <Header />
 
-            <Box sx={{ p: 4, bgcolor: "#FAFAFA" }}>
+            <Box sx={{ minWidth: "100vw", minHeight: "100vh", p: 4, bgcolor: "#FAFAFA" }}>
                 <Box sx={{ mt: 10 }} >
                     <Typography variant="h5">
                         Ваши предстоящие мероприятия:

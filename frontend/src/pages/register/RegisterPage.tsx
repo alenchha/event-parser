@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../../public/logo.png';
 import picreg from '../../../public/picreg.jpg';
-import { registerUser } from "../../api/auth/auth";
+import { useAuth } from "../../context/AuthContext";
 
 interface ErrorResponse {
     detail?: string | string[];
@@ -14,17 +14,14 @@ export const RegisterPage = () => {
     const [password, setPassword] = useState("");
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
-    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
+    const { register, isLoading } = useAuth();
 
     const handleRegister = async () => {
-        setLoading(true);
         try {
-            await registerUser({ username, password });
-            setUsername("");
-            setPassword("");
-            navigate("/");
+            await register(username, password);
+            navigate("/events");
         } catch (error: unknown) {
             console.error("Ошибка регистрации:", error);
 
@@ -37,14 +34,12 @@ export const RegisterPage = () => {
                     : "Registration failed"
             );
             setSnackbarOpen(true);
-        } finally {
-            setLoading(false);
         }
     };
 
     return (
         <>
-            <Grid container sx={{ minHeight: "100vh", bgcolor: "#FAFAFA" }}>
+            <Grid container sx={{ minHeight: "100vh", minWidth: "100vw",  bgcolor: "#FAFAFA" }}>
                 <Grid
                     gridColumn={{ xs: "span 12", md: "span 6" }}
                     sx={{
@@ -160,7 +155,7 @@ export const RegisterPage = () => {
                     {snackbarMessage}
                 </Alert>
             </Snackbar>
-            {loading && (
+            {isLoading && (
                 <Box
                     sx={{
                         position: "fixed",

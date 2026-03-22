@@ -3,6 +3,7 @@ import { Header } from '../../widgets/header';
 import { useEffect, useState } from "react";
 import { getEvents } from "../../api/events/events";
 import type { Event } from "../../api/events/events";
+import { Link } from "react-router-dom";
 
 export const EventsPage = () => {
     const [events, setEvents] = useState<Event[]>([]);
@@ -87,7 +88,7 @@ export const EventsPage = () => {
                 </Box>
             )}
 
-            <Box sx={{ minHeight: "100vh", mt: 10, p: 4, backgroundColor: "#FAFAFA" }}>
+            <Box sx={{ minHeight: "100vh",minWidth: "100vw",  mt: 10, p: 4, backgroundColor: "#FAFAFA" }}>
                 {error ? (
                     <Typography variant="h6" align="center" color="#222222">
                         Connection error
@@ -181,10 +182,8 @@ export const EventsPage = () => {
                                             position: "relative",
                                         }}
                                     >
-                                        <a
-                                            href={`/events/${event.id}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
+                                        <Link
+                                            to={`/events/${event.id}`}
                                             style={{ textDecoration: "none", display: "block", width: "100%", height: "100%" }}
                                         >
                                             <Box
@@ -225,7 +224,7 @@ export const EventsPage = () => {
                                             >
                                                 ➤
                                             </Box>
-                                        </a>
+                                        </Link>
                                     </Box>
                                 ))}
                             </Box>

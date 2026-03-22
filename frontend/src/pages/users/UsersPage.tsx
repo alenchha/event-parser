@@ -129,7 +129,7 @@ export const UsersPage = () => {
                 </Box>
             )}
 
-            <Box sx={{ minHeight: "100vh", width: "95vw", mt: 10, p: 4, backgroundColor: "#FAFAFA" }}>
+            <Box sx={{ minHeight: "100vh", width: "100vw", mt: 10, p: 4, backgroundColor: "#FAFAFA" }}>
                 {error ? (
                     <Box sx={{ textAlign: "center", py: 8 }}>
                         <Typography variant="h6" color="#222222" gutterBottom>

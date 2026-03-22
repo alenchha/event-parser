@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Table
+from sqlalchemy import Column, Integer, String, ForeignKey, Table, Boolean, DateTime
 from sqlalchemy.orm import relationship
 from ..core.db import Base
+from datetime import datetime
 
 user_events = Table(
     "user_events",
@@ -46,3 +47,16 @@ class Event(Base):
     @property
     def registration_count(self):
         return len(self.participants)
+    
+class RefreshToken(Base):
+    __tablename__ = "refresh_tokens"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    token = Column(String, unique=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    expires_at = Column(DateTime)
+    is_revoked = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    user_agent = Column(String, nullable=True)
+
+    user = relationship("User", backref="refresh_tokens")

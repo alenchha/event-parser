@@ -1,6 +1,5 @@
 import axios from "axios";
-
-const API_URL = import.meta.env.VITE_BACKEND_URL;
+import apiClient from '../axiosConfig';
 
 export interface EventData {
     id?: number;
@@ -15,21 +14,14 @@ export interface EventData {
     image_url: string;
 }
 
-const getAuthHeaders = () => {
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error("No token found");
-    return { Authorization: `Bearer ${token}` };
-};
-
 export const parseEventImage = async (file: File): Promise<Partial<EventData>> => {
     const formData = new FormData();
     formData.append("file", file);
 
     try {
-        const response = await axios.post(`${API_URL}/events/parse_image`, formData, {
+        const response = await apiClient.post('/events/parse_image', formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
-                ...getAuthHeaders(),
             },
         });
         if (typeof response.data === "string") {
@@ -47,9 +39,7 @@ export const parseEventImage = async (file: File): Promise<Partial<EventData>> =
 
 export const createEvent = async (data: Partial<EventData>) => {
     try {
-        const response = await axios.post(`${API_URL}/events/create`, data, {
-            headers: getAuthHeaders(),
-        });
+        const response = await apiClient.post('/events/create', data);
         return response.data as EventData;
     } catch (err: unknown) {
         if (axios.isAxiosError(err)) {
@@ -62,9 +52,7 @@ export const createEvent = async (data: Partial<EventData>) => {
 
 export const updateEvent = async (eventId: number, data: Partial<EventData>) => {
     try {
-        const response = await axios.patch(`${API_URL}/events/${eventId}`, data, {
-            headers: getAuthHeaders(),
-        });
+        const response = await apiClient.patch(`/events/${eventId}`, data);
         return response.data as EventData;
     } catch (err: unknown) {
         if (axios.isAxiosError(err)) {
@@ -77,9 +65,7 @@ export const updateEvent = async (eventId: number, data: Partial<EventData>) => 
 
 export const deleteEvent = async (eventId: number) => {
     try {
-        const response = await axios.delete(`${API_URL}/events/${eventId}`, {
-            headers: getAuthHeaders(),
-        });
+        const response = await apiClient.delete(`/events/${eventId}`);
         return response.data as string;
     } catch (err: unknown) {
         if (axios.isAxiosError(err)) {

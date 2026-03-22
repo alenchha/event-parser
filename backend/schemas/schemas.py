@@ -43,6 +43,12 @@ class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
 
+class LoginResponse(Token):
+    user: 'UserWithEvents'
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
+
 class EventCreate(BaseModel):
     title: str
     date: str
@@ -69,3 +75,6 @@ class EventCreate(BaseModel):
 class PasswordChange(BaseModel):
     old_password: str
     new_password: str
+
+UserWithEvents.model_rebuild()
+LoginResponse.model_rebuild()

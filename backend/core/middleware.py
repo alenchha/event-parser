@@ -1,11 +1,10 @@
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from jose import jwt, JWTError
-import re
 
 from ..core.db import SessionLocal
 from ..model.models import User
-from ..routes.auth import SECRET_KEY, ALGORITHM
+from ..core.config import SECRET_KEY, ALGORITHM
 
 
 async def auth_middleware(request: Request, call_next):
@@ -16,6 +15,7 @@ async def auth_middleware(request: Request, call_next):
         "/health",
         "/auth/login",
         "/auth/register",
+        "/auth/refresh",
         "/openapi.json",
         "/docs",
         "/docs/oauth2-redirect",

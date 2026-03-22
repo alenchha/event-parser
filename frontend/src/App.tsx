@@ -6,6 +6,7 @@ import { AdminRoute } from './app/routes/AdminRoute';
 import "@fontsource/oswald/400.css";
 import "@fontsource/oswald/500.css";
 import "@fontsource/oswald/700.css";
+import { AuthProvider } from './context/AuthContext';
 
 const theme = createTheme({
     typography: {
@@ -17,56 +18,58 @@ function App() {
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
-            <BrowserRouter>
-                <Routes>
-                    <Route path="/register" element={<RegisterPage />} />
-                    <Route path="/" element={<LoginPage />} />
-                    <Route
-                        path="/events"
-                        element={
-                            <ProtectedRoute>
-                                <EventsPage />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/events/:event_id"
-                        element={
-                            <ProtectedRoute>
-                                <EventDetailPage />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/profile"
-                        element={
-                            <ProtectedRoute>
-                                <ProfilePage />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/upload"
-                        element={
-                            <ProtectedRoute>
-                                <AdminRoute>
-                                    <CreateEventPage />
-                                </AdminRoute>
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/users"
-                        element={
-                            <ProtectedRoute>
-                                <AdminRoute>
-                                    <UsersPage />
-                                </AdminRoute>
-                            </ProtectedRoute>
-                        }
-                    />
-                </Routes>
-            </BrowserRouter>
+            <AuthProvider>
+                <BrowserRouter>
+                    <Routes>
+                        <Route path="/register" element={<RegisterPage />} />
+                        <Route path="/" element={<LoginPage />} />
+                        <Route
+                            path="/events"
+                            element={
+                                <ProtectedRoute>
+                                    <EventsPage />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/events/:event_id"
+                            element={
+                                <ProtectedRoute>
+                                    <EventDetailPage />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/profile"
+                            element={
+                                <ProtectedRoute>
+                                    <ProfilePage />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/upload"
+                            element={
+                                <ProtectedRoute>
+                                    <AdminRoute>
+                                        <CreateEventPage />
+                                    </AdminRoute>
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/users"
+                            element={
+                                <ProtectedRoute>
+                                    <AdminRoute>
+                                        <UsersPage />
+                                    </AdminRoute>
+                                </ProtectedRoute>
+                            }
+                        />
+                    </Routes>
+                </BrowserRouter>
+            </AuthProvider>
         </ThemeProvider>
     )
 }
