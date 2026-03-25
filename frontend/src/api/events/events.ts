@@ -16,10 +16,29 @@ export interface Event {
     participants: unknown[];
 }
 
-export const getEvents = async (): Promise<Event[]> => {
+export interface EventsResponse {
+    items: Event[];
+    total: number;
+    skip: number;
+    limit: number;
+    has_more: boolean;
+}
 
+interface GetEventsParams {
+    skip?: number;
+    limit?: number;
+    search?: string;
+    age_limit?: number;
+    date_from?: string;
+    date_to?: string;
+    event_type?: string;
+    place?: string;
+    sort_by?: string;
+    sort_order?: string;
+}
+export const getEvents = async (params: GetEventsParams = {}): Promise<EventsResponse> => {
     try {
-        const response = await apiClient.get<Event[]>('/events');
+        const response = await apiClient.get<EventsResponse>('/events', { params });
         return response.data;
     } catch (err: unknown) {
         if (axios.isAxiosError(err)) {

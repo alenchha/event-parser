@@ -1,34 +1,20 @@
-import { type ReactNode, useEffect, useState } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { type ReactNode } from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { Box, CircularProgress } from '@mui/material';
-import { getCurrentUser } from '../../api/users/users';
 
-interface ProtectedRouteProps {
+interface AdminRouteProps {
     children: ReactNode;
-    requiredRole?: 'admin';
     redirectTo?: string;
 }
 
 export const AdminRoute = ({ 
     children,
     redirectTo = '/events' 
-}: ProtectedRouteProps) => {
-    const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-    const location = useLocation();
+}: AdminRouteProps) => {
+    const { user, isLoading } = useAuth();
 
-    useEffect(() => {
-        const checkAdmin = async () => {
-            try {
-                const user = await getCurrentUser();
-                setIsAdmin(user.role === 'admin');
-            } catch {
-                setIsAdmin(false);
-            }
-        };
-        checkAdmin();
-    }, []);
-
-    if (isAdmin === null) {
+    if (isLoading) {
         return (
             <Box
                 sx={{
@@ -49,8 +35,8 @@ export const AdminRoute = ({
         );
     }
 
-    if (!isAdmin) {
-        return <Navigate to={redirectTo} state={{ from: location }} replace />;
+    if (!user || user.role !== 'admin') {
+        return <Navigate to={redirectTo} replace />;
     }
 
     return <>{children}</>;

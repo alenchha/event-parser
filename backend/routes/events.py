@@ -1,29 +1,114 @@
-from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, Query
 from sqlalchemy.orm import Session
 from fastapi.responses import StreamingResponse
 import io
 import qrcode
-from typing import List
+from typing import Optional
+from datetime import datetime
 
 from ..core.db import get_db
 from ..model.models import Event as EventModel
-from ..schemas.schemas import EventCreate, EventWithParticipants, EventBase
+from ..schemas.schemas import EventCreate, EventWithParticipants, EventBase, EventListResponse
 from ..dependencies.dependencies import get_current_user
 from ..ai.parser import parse_event_from_image
 from ..model.permissons import RequirePermission, Permission
 
 router = APIRouter()
 
-@router.get("/", response_model=List[EventWithParticipants])
-def get_events(db: Session = Depends(get_db), user=Depends(RequirePermission(Permission.VIEW_EVENTS))):
+def parse_date_dmy(date_str: str) -> Optional[datetime]:
+    if not date_str:
+        return None
+
+    if '-' in date_str:
+        try:
+            year, month, day = date_str.split('-')
+            return datetime(int(year), int(month), int(day))
+        except:
+            pass
+    
+    if '.' in date_str:
+        try:
+            day, month, year = date_str.split('.')
+            return datetime(int(year), int(month), int(day))
+        except:
+            pass
+    
+    return None
+
+@router.get("/", response_model=EventListResponse)
+def get_events(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(10, ge=1, le=100),
+    search: Optional[str] = None,
+    age_limit: Optional[int] = None,
+    date_from: Optional[str] = None,
+    date_to: Optional[str] = None,
+    event_type: Optional[str] = None,
+    place: Optional[str] = None,
+    sort_by: str = "date",
+    sort_order: str = "asc",
+    db: Session = Depends(get_db),
+    user=Depends(RequirePermission(Permission.VIEW_EVENTS))
+):
     events = db.query(EventModel).all()
-    return [
-        {
-            **e.__dict__, "registration_count": len(e.participants),
+    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+
+    filtered = []
+    for e in events:
+        ev_date = parse_date_dmy(e.date)
+        if ev_date and ev_date < today:
+            continue
+
+        if search and search.lower() not in e.title.lower():
+            continue
+
+        if age_limit is not None and e.age_limit is not None and e.age_limit > age_limit:
+            continue
+
+        if date_from:
+            from_date = parse_date_dmy(date_from)
+            if from_date and ev_date and ev_date < from_date:
+                continue
+
+        if date_to:
+            to_date = parse_date_dmy(date_to)
+            if to_date and ev_date and ev_date > to_date:
+                continue
+
+        if event_type and e.event_type and event_type.lower() not in e.event_type.lower():
+            continue
+
+        if place and place.lower() not in e.place.lower():
+            continue
+        
+        filtered.append(e)
+
+    reverse = sort_order == "desc"
+    if sort_by == "title":
+        filtered.sort(key=lambda x: x.title, reverse=reverse)
+    elif sort_by == "place":
+        filtered.sort(key=lambda x: x.place, reverse=reverse)
+    else:
+        filtered.sort(key=lambda x: parse_date_dmy(x.date) or datetime.min, reverse=reverse)
+
+    total = len(filtered)
+    paginated = filtered[skip:skip + limit]
+
+    result_items = []
+    for e in paginated:
+        result_items.append({
+            **e.__dict__,
+            "registration_count": len(e.participants),
             "participants": e.participants,
-        }
-        for e in events
-    ]
+        })
+    
+    return {
+        "items": result_items,
+        "total": total,
+        "skip": skip,
+        "limit": limit,
+        "has_more": skip + limit < total
+    }
 
 @router.post("/parse_image")
 async def parse_image(file: UploadFile = File(...), user=Depends(RequirePermission(Permission.PARSE_IMAGE))):

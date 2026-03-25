@@ -17,6 +17,7 @@ class User(Base):
     username = Column(String, unique=True, index=True)
     password = Column(String)
     role = Column(String, default="user")
+    avatar_filename = Column(String, nullable=True)
 
     registered_events = relationship(
         "Event",

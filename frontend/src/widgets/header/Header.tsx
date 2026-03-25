@@ -1,24 +1,26 @@
 import { Box, Typography, Dialog, DialogTitle, DialogActions, DialogContent,
-    Button, Menu, MenuItem, TextField, Snackbar, Alert } from "@mui/material";
+    Button, Menu, MenuItem, TextField, Snackbar, Alert, Avatar } from "@mui/material";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from '../../../public/logo.png';
-import { changePassword, deleteMyAccount } from "../../api/users/users";
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { changePassword, deleteMyAccount, uploadAvatar, deleteAvatar } from "../../api/users/users";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 
 export const Header: React.FC = () => {
     const navigate = useNavigate();
-    const { user, logout, isLoading } = useAuth();
+    const { user, logout, isLoading, refreshUser } = useAuth();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [openLogoutConfirm, setOpenLogoutConfirm] = useState(false);
     const [openDelete, setOpenDelete] = useState(false);
     const [openChangePassword, setOpenChangePassword] = useState(false);
+    const [openAvatarDialog, setOpenAvatarDialog] = useState(false);
     const [oldPass, setOldPass] = useState("");
     const [newPass, setNewPass] = useState("");
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [uploadingAvatar, setUploadingAvatar] = useState(false);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
     useEffect(() => {
         if (!isLoading && !user) {
@@ -34,6 +36,45 @@ export const Header: React.FC = () => {
         setOpenLogoutConfirm(true);
         handleMenuClose();
     };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            if (file.size > 5 * 1024 * 1024) {
+                setErrorMessage("Файл слишком большой (макс 5MB)");
+                setSnackbarOpen(true);
+                return;
+            }
+            setSelectedFile(file);
+        }
+    };
+
+const handleUploadAvatar = async () => {
+    if (!selectedFile) return;
+    
+    setUploadingAvatar(true);
+    try {
+        await uploadAvatar(selectedFile);
+        await refreshUser();
+        setOpenAvatarDialog(false);
+    } catch (err) {
+        setErrorMessage(getErrorMessage(err, "Ошибка загрузки аватарки"));
+        setSnackbarOpen(true);
+    } finally {
+        setUploadingAvatar(false);
+    }
+};
+
+const handleDeleteAvatar = async () => {
+    try {
+        await deleteAvatar();
+        await refreshUser();
+        setOpenAvatarDialog(false);
+    } catch (err) {
+        setErrorMessage(getErrorMessage(err, "Ошибка удаления аватарки"));
+        setSnackbarOpen(true);
+    }
+};
 
     const getErrorMessage = (e: unknown, defaultMsg: string): string => {
         if (axios.isAxiosError(e)) {
@@ -118,13 +159,21 @@ export const Header: React.FC = () => {
                     }
                 </Box>
 
-                <Box sx={{ display: "flex", alignItems: "center", cursor: "pointer" }} onClick={handleMenuOpen}>
+                <Box sx={{ display: "flex", alignItems: "center", cursor: "pointer", gap: 1 }} onClick={handleMenuOpen}>
                     <Typography sx={{ fontSize: 18 }}>{user?.username}</Typography>
-                    <AccountCircleIcon sx={{ fontSize: 32, m: 1 }} />
+                    <Avatar 
+                        src={user?.avatar_url} 
+                        sx={{ width: 40, height: 40, bgcolor: "#222222" }}
+                    >
+                        {!user?.avatar_url && user?.username?.[0]?.toUpperCase()}
+                    </Avatar>
                 </Box>
 
                 <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
                     <MenuItem onClick={handleLogout}>Выйти</MenuItem>
+                    <MenuItem onClick={() => { setOpenAvatarDialog(true); handleMenuClose(); }}>
+                        Сменить аватар
+                    </MenuItem>
                     <MenuItem onClick={() => { setOpenChangePassword(true); handleMenuClose(); }}>Сменить пароль</MenuItem>
                     <MenuItem onClick={() => { setOpenDelete(true); handleMenuClose(); }}>Удалить аккаунт</MenuItem>
                 </Menu>
@@ -135,6 +184,74 @@ export const Header: React.FC = () => {
                 width: "100%",
                 background: "linear-gradient(0.322turn, rgba(214,255,0,1) 0%, rgba(255,0,127,1) 100%)",
             }} />
+
+            <Dialog
+                open={openAvatarDialog}
+                onClose={() => {
+                    setOpenAvatarDialog(false);
+                    setSelectedFile(null);
+                }}
+                fullWidth
+                maxWidth="xs"
+            >
+                <DialogTitle sx={{ textAlign: "center" }}>
+                    Сменить аватар
+                </DialogTitle>
+                <DialogContent sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, py: 2 }}>
+                    <Avatar 
+                        src={user?.avatar_url} 
+                        sx={{ width: 100, height: 100, bgcolor: "#222222" }}
+                    >
+                        {!user?.avatar_url && user?.username?.[0]?.toUpperCase()}
+                    </Avatar>
+                    
+                    <Button
+                        variant="outlined"
+                        component="label"
+                        fullWidth
+                        disabled={uploadingAvatar}
+                    >
+                        Выбрать файл
+                        <input
+                            type="file"
+                            hidden
+                            accept="image/jpeg,image/png,image/webp"
+                            onChange={handleFileChange}
+                        />
+                    </Button>
+                    
+                    {selectedFile && (
+                        <Typography variant="body2" color="text.secondary">
+                            {selectedFile.name}
+                        </Typography>
+                    )}
+                </DialogContent>
+                <DialogActions sx={{ justifyContent: "center", gap: 2, pb: 2 }}>
+                    <Button onClick={() => setOpenAvatarDialog(false)}>
+                        Отмена
+                    </Button>
+                    {selectedFile && (
+                        <Button
+                            variant="contained"
+                            onClick={handleUploadAvatar}
+                            disabled={uploadingAvatar}
+                            sx={{ bgcolor: "#222222" }}
+                        >
+                            {uploadingAvatar ? "Ожидание..." : "Загрузить"}
+                        </Button>
+                    )}
+                    {user?.avatar_url && (
+                        <Button
+                            variant="outlined"
+                            color="error"
+                            onClick={handleDeleteAvatar}
+                            disabled={uploadingAvatar}
+                        >
+                            Удалить
+                        </Button>
+                    )}
+                </DialogActions>
+            </Dialog>
 
             <Dialog open={openLogoutConfirm} onClose={() => setOpenLogoutConfirm(false)}>
                 <DialogTitle sx={{ fontWeight: 300 }}>Вы уверены, что хотите выйти?</DialogTitle>

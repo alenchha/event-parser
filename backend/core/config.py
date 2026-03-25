@@ -2,7 +2,7 @@ from passlib.context import CryptContext
 
 SECRET_KEY = "supersecretkey"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 1
+ACCESS_TOKEN_EXPIRE_MINUTES = 15
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 pwd_context = CryptContext(schemes=["sha256_crypt"], deprecated="auto")

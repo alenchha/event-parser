@@ -5,6 +5,7 @@ import re
 class UserBase(BaseModel):
     id: Optional[int] = None
     username: str
+    avatar_url: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -32,9 +33,17 @@ class EventBase(BaseModel):
 class EventWithParticipants(EventBase):
     participants: List[UserBase] = []
 
+class EventListResponse(BaseModel):
+    items: List[EventWithParticipants]
+    total: int
+    skip: int
+    limit: int
+    has_more: bool
+
 class UserWithEvents(UserBase):
     role: str
     registered_events: List[EventBase] = []
+    avatar_url: Optional[str] = None
 
     class Config:
         from_attributes = True

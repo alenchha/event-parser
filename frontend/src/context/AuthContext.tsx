@@ -1,12 +1,14 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useState, useContext, useEffect, type ReactNode } from 'react';
 import { loginUser, registerUser, logoutUser } from '../api/auth/auth';
+import { getCurrentUser } from '../api/users/users';
 import apiClient from '../api/axiosConfig';
 
 export interface User {
     id: number;
     username: string;
     role: 'admin' | 'user';
+    avatar_url?: string;
 }
 
 interface AuthContextType {
@@ -17,6 +19,7 @@ interface AuthContextType {
     login: (username: string, password: string) => Promise<void>;
     register: (username: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
+    refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -87,6 +90,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     };
 
+    const refreshUser = async () => {
+        try {
+            const userData = await getCurrentUser();
+            setUser(userData);
+        } catch (error) {
+            console.error("Failed to refresh user", error);
+        }
+    };
+
     return (
         <AuthContext.Provider value={{
             user,
@@ -96,6 +108,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             login,
             register,
             logout,
+            refreshUser,
         }}>
             {children}
         </AuthContext.Provider>

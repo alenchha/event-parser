@@ -40,7 +40,7 @@ apiClient.interceptors.response.use(
             originalRequest._retry = true;
 
             try {
-                const response = await axios.post(
+                const response = await apiClient.post(
                     '/auth/refresh',
                     {},
                     { withCredentials: true }
