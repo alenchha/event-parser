@@ -13,6 +13,13 @@ const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use((config) => {
+    const publicEndpoints = ['/events', '/events/'];
+    const isPublic = publicEndpoints.some(endpoint => config.url?.startsWith(endpoint));
+    
+    if (isPublic) {
+        return config;
+    }
+    
     const token = localStorage.getItem("access_token");
 
     if (token) {

@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { HelmetProvider } from 'react-helmet-async';
 import './index.css'
 import App from './App.tsx'
 import "@fontsource/oswald/400.css";
@@ -9,6 +10,8 @@ import "@fontsource/oswald/700.css";
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <HelmetProvider>
+      <App />
+    </HelmetProvider>
   </StrictMode>,
 )

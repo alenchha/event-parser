@@ -11,6 +11,7 @@
 
 3. В терминале введите команду
    Не заходя в папку backend:
+   docker compose up -d 
    uvicorn backend.main:app --host localhost --port 8000
 
 Чтобы запустить frontend, нужно перейти в папку frontend: cd .\frontend\

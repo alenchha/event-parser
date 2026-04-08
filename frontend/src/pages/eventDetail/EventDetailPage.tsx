@@ -2,45 +2,80 @@ import { Box,Typography, CircularProgress, Button, Dialog, DialogTitle,
     DialogActions, DialogContent, Snackbar, Alert } from "@mui/material";
 import { Header } from "../../widgets/header";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { getEventById } from "../../api/events/events";
 import { registerForEvent, getEventQRCode } from '../../api/ticket/tickets';
 import type { Event } from "../../api/events/events";
-import { getCurrentUser } from "../../api/users/users";
 import { deleteEvent, updateEvent } from '../../api/admin/events';
 import { EventForm } from "../../widgets/eventForm";
+import { MetaTags } from "../../components/MetaTags";
+import { useAuth } from "../../context/AuthContext";
+import { Helmet } from "react-helmet-async";
+import { getWeather, type WeatherResponse } from "../../api/weather/weather";
 
 export const EventDetailPage = () => {
     const { event_id } = useParams();
+    const navigate = useNavigate();
+
     const [event, setEvent] = useState<Event | null>(null);
     const [loading, setLoading] = useState(true);
     const [open, setOpen] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
     const [qrCode, setQRCode] = useState<string | null>(null);
-    const [role, setRole] = useState<string | null>(null);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
+    const [weather, setWeather] = useState<WeatherResponse>();
+    const [weatherLoading, setWeatherLoading] = useState(false);
 
-    useEffect(() => {
-        getCurrentUser()
-            .then(user => setRole(user.role))
-            .catch(() => setRole(null));
-    }, []);
+    const { isAuthenticated, user } = useAuth();
+    const role = user?.role || 'user';
 
+    const fetchWeather = async (city: string) => {
+        if (!city) return;
+        setWeatherLoading(true);
+        try {
+            const data = await getWeather(city);
+            setWeather(data);
+        } catch (error) {
+            console.error("Ошибка загрузки погоды:", error);
+            setWeather({ error: "Не удалось загрузить погоду" } as WeatherResponse);
+        } finally {
+            setWeatherLoading(false);
+        }
+    };
 
     useEffect(() => {
         if (!event_id) return;
 
         setLoading(true);
         getEventById(Number(event_id))
-            .then(data => setEvent(data))
+            .then(data => {
+                setEvent(data);
+                if (data?.place) {
+                    fetchWeather(data.place);
+                }
+            })
             .catch(() => setEvent(null))
             .finally(() => setLoading(false));
     }, [event_id]);
+
+    const formatDateToISO = (dateStr: string) => {
+        const [day, month, year] = dateStr.split(".");
+        return `${year}-${month}-${day}`;
+    };
+
+    const handleRegisterClick = () => {
+        if (!isAuthenticated) {
+            sessionStorage.setItem("redirectAfterLogin", window.location.pathname);
+            navigate("/");
+        } else {
+            setOpen(true);
+        }
+    };
 
     if (loading) {
         return (
@@ -96,6 +131,29 @@ export const EventDetailPage = () => {
         <>
             <Box sx={{ minHeight: "100vh", minWidth: "100vw", backgroundColor: "#FAFAFA" }}>
                 <Header />
+                <MetaTags 
+                    title={event.title}
+                    description={event.description || `Событие ${event.title} — ${event.date} в ${event.place}`}
+                    url={window.location.href}
+                    image={event.image_url}
+                />
+                <Helmet>
+                    <script type="application/ld+json">
+                        {JSON.stringify({
+                            "@context": "https://schema.org",
+                            "@type": "Event",
+                            "name": event.title,
+                            "startDate": `${formatDateToISO(event.date)}T${event.time}:00`,
+                            "location": {
+                                "@type": "Place",
+                                "name": event.place,
+                                "address": event.place
+                            },
+                            "description": event.description,
+                            "image": event.image_url
+                        })}
+                    </script>
+                </Helmet>
                 <Box sx={{ 
                         display: "flex", 
                         gap: 4, 
@@ -106,18 +164,25 @@ export const EventDetailPage = () => {
                         boxSizing: "border-box"
                     }}
                 >
-                    <Box
-                        sx={{
-                            flex: "0 0 600px",
-                            minHeight: 600,
-                            borderRadius: 3,
-                            background: event.image_url
-                                ? `url(${event.image_url}) center/cover no-repeat`
-                                : "linear-gradient(0.523turn, rgba(214,255,0,1) 0%, rgba(255,0,127,1) 100%)",
-                            backgroundSize: "cover",
-                            backgroundPosition: "center",
-                        }}
-                    />
+                    <Box sx={{ position: "relative", flex: "0 0 600px" }}>
+                        <img 
+                            src={event.image_url} 
+                            alt={event.title}
+                            style={{ display: "none" }}
+                        />
+                        <Box
+                            sx={{
+                                flex: "0 0 600px",
+                                minHeight: 600,
+                                borderRadius: 3,
+                                background: event.image_url
+                                    ? `url(${event.image_url}) center/cover no-repeat`
+                                    : "linear-gradient(0.523turn, rgba(214,255,0,1) 0%, rgba(255,0,127,1) 100%)",
+                                backgroundSize: "cover",
+                                backgroundPosition: "center",
+                            }}
+                        />
+                    </Box>
 
                     <Box
                         sx={{
@@ -148,6 +213,33 @@ export const EventDetailPage = () => {
                                     Тип события: {event.event_type}
                                     </Typography>
                                 )}
+                                {weatherLoading && (
+                                    <Typography variant="body2" sx={{ mt: 1, opacity: 0.7 }}>
+                                        Загрузка погоды...
+                                    </Typography>
+                                )}
+                                
+                                {weather && !weather.error && (
+                                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1 }}>
+                                        <img 
+                                            src={`https://openweathermap.org/img/w/${weather.icon}.png`} 
+                                            alt={weather.description}
+                                            style={{ width: 40, height: 40 }}
+                                        />
+                                        <Typography variant="body1">
+                                            {weather.temperature}°C, {weather.description}
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary">
+                                            Ощущается как {weather.feels_like}°C, влажность {weather.humidity}%
+                                        </Typography>
+                                    </Box>
+                                )}
+                                
+                                {weather?.error && (
+                                    <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+                                        {weather.error}
+                                    </Typography>
+                                )}
                             </Box>
                             <Box sx={{ mt: 3 }}>
                                 {soldOut ? (
@@ -156,7 +248,7 @@ export const EventDetailPage = () => {
                                     </Button>
                                 ) : (
                                     <Button
-                                        onClick={() => setOpen(true)}
+                                        onClick={handleRegisterClick}
                                         variant="contained"
                                         sx={{
                                             width: 272,

@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from backend.core.db import Base, engine
 from backend.core.middleware import auth_middleware
 import backend.model.models as models
-from backend.routes import health, events, users, auth, admin, upload
+from backend.routes import health, events, users, auth, admin, upload, seo, weather
 
 Base.metadata.create_all(bind=engine)
 
@@ -31,3 +31,5 @@ app.include_router(users.router, prefix="/users", tags=["Users"])
 app.include_router(events.router, prefix="/events", tags=["Events"])
 app.include_router(upload.router, prefix="/api", tags=["Upload"])
 app.include_router(admin.router, prefix="/admin", tags=['Admin'])
+app.include_router(weather.router, tags=["Weather"])
+app.include_router(seo.router, tags=["SEO"])

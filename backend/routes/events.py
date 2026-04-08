@@ -47,8 +47,7 @@ def get_events(
     place: Optional[str] = None,
     sort_by: str = "date",
     sort_order: str = "asc",
-    db: Session = Depends(get_db),
-    user=Depends(RequirePermission(Permission.VIEW_EVENTS))
+    db: Session = Depends(get_db)
 ):
     events = db.query(EventModel).all()
     today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
@@ -126,7 +125,7 @@ def create_event(event: EventCreate, db: Session = Depends(get_db), user=Depends
     return db_event
 
 @router.get("/{event_id}", response_model=EventBase)
-def get_event(event_id: int, db: Session = Depends(get_db), user=Depends(RequirePermission(Permission.VIEW_EVENTS))):
+def get_event(event_id: int, db: Session = Depends(get_db)):
     db_event = db.query(EventModel).filter(EventModel.id == event_id).first()
     if not db_event:
         raise HTTPException(status_code=404, detail="Event not found")

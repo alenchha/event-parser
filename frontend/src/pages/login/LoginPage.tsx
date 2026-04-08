@@ -22,7 +22,13 @@ export const LoginPage = () => {
     const handleLogin = async () => {
         try {
             await login(username, password);
-            navigate("/events");
+            const redirectTo = sessionStorage.getItem("redirectAfterLogin");
+            if (redirectTo) {
+                sessionStorage.removeItem("redirectAfterLogin");
+                navigate(redirectTo);
+            } else {
+                navigate("/events");
+            }
         } catch (error: unknown) {
             console.error("Ошибка входа:", error);
             const err = error as ErrorResponse;

@@ -1,7 +1,7 @@
 import { Box, Typography, Dialog, DialogTitle, DialogActions, DialogContent,
     Button, Menu, MenuItem, TextField, Snackbar, Alert, Avatar } from "@mui/material";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import logo from '../../../public/logo.png';
 import { changePassword, deleteMyAccount, uploadAvatar, deleteAvatar } from "../../api/users/users";
 import axios from "axios";
@@ -22,11 +22,14 @@ export const Header: React.FC = () => {
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
+    const location = useLocation();
+    const isPublicPage = location.pathname === "/events" || location.pathname.startsWith("/events/");
+
     useEffect(() => {
-        if (!isLoading && !user) {
+        if (!isLoading && !user && !isPublicPage) {
             navigate("/");
         }
-    }, [user, isLoading, navigate]);
+    }, [user, isLoading, navigate, isPublicPage]);
 
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget);
@@ -159,15 +162,26 @@ const handleDeleteAvatar = async () => {
                     }
                 </Box>
 
-                <Box sx={{ display: "flex", alignItems: "center", cursor: "pointer", gap: 1 }} onClick={handleMenuOpen}>
-                    <Typography sx={{ fontSize: 18 }}>{user?.username}</Typography>
-                    <Avatar 
-                        src={user?.avatar_url} 
-                        sx={{ width: 40, height: 40, bgcolor: "#222222" }}
+                {user ? (
+                    <Box sx={{ display: "flex", alignItems: "center", cursor: "pointer", gap: 1 }} onClick={handleMenuOpen}>
+                        <Typography sx={{ fontSize: 18 }}>{user?.username}</Typography>
+                        <Avatar 
+                            src={user?.avatar_url} 
+                            sx={{ width: 40, height: 40, bgcolor: "#222222" }}
+                        >
+                            {!user?.avatar_url && user?.username?.[0]?.toUpperCase()}
+                        </Avatar>
+                    </Box>
+                ) : (
+                    <Button
+                        onClick={() => {
+                            sessionStorage.setItem("redirectAfterLogin", window.location.pathname);
+                            navigate("/");
+                        }}
                     >
-                        {!user?.avatar_url && user?.username?.[0]?.toUpperCase()}
-                    </Avatar>
-                </Box>
+                        Войти
+                    </Button>
+                )}
 
                 <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
                     <MenuItem onClick={handleLogout}>Выйти</MenuItem>

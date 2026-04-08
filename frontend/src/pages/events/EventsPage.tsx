@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getEvents } from "../../api/events/events";
 import type { Event, EventsResponse } from "../../api/events/events";
 import { Link, useSearchParams } from "react-router-dom";
+import { MetaTags } from "../../components/MetaTags";
 
 export const EventsPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -99,6 +100,12 @@ export const EventsPage = () => {
 
     return (
         <Box >
+            <MetaTags 
+                title="Афиша событий"
+                description="Все предстоящие события в одном месте. Концерты, спектакли, выставки."
+                url={window.location.href}
+            />
+
             <Header />
 
             {loading && (
@@ -231,65 +238,72 @@ export const EventsPage = () => {
                                     }}
                                 >
                                     {events.map(event => (
-                                        <Box
-                                            key={event.id}
-                                            sx={{
-                                                width: 340,
-                                                height: 340,
-                                                borderRadius: 2,
-                                                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                                                overflow: "hidden",
-                                                background: event.image_url
-                                                    ? `url(${event.image_url}) center/cover no-repeat`
-                                                    : "linear-gradient(0.523turn, rgba(214,255,0,1) 0%, rgba(255,0,127,1) 100%)",
-                                                backgroundSize: "cover",
-                                                backgroundPosition: "center",
-                                                position: "relative",
-                                            }}
-                                        >
-                                            <Link
-                                                to={`/events/${event.id}`}
-                                                style={{ textDecoration: "none", display: "block", width: "100%", height: "100%" }}
+                                        <Box key={event.id} sx={{ position: "relative" }}>
+                                            <img 
+                                                src={event.image_url} 
+                                                alt={event.title}
+                                                style={{ display: "none" }}
+                                                loading="lazy"
+                                            />
+                                            <Box
+                                                sx={{
+                                                    width: 340,
+                                                    height: 340,
+                                                    borderRadius: 2,
+                                                    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                                                    overflow: "hidden",
+                                                    background: event.image_url
+                                                        ? `url(${event.image_url}) center/cover no-repeat`
+                                                        : "linear-gradient(0.523turn, rgba(214,255,0,1) 0%, rgba(255,0,127,1) 100%)",
+                                                    backgroundSize: "cover",
+                                                    backgroundPosition: "center",
+                                                    position: "relative",
+                                                }}
                                             >
-                                                <Box
-                                                    sx={{
-                                                        position: "absolute",
-                                                        bottom: 0,
-                                                        left: 0,
-                                                        width: "100%",
-                                                        height: 75,
-                                                        bgcolor: "rgba(0,0,0,0.6)",
-                                                        px: 2,
-                                                        py: 1,
-                                                        display: "flex",
-                                                        flexDirection: "column",
-                                                        justifyContent: "center",
-                                                        borderBottomLeftRadius: 10,
-                                                        borderBottomRightRadius: 10,
-                                                    }}
+                                                <Link
+                                                    to={`/events/${event.id}`}
+                                                    style={{ textDecoration: "none", display: "block", width: "100%", height: "100%" }}
                                                 >
-                                                    <Typography sx={{ fontSize: 20, fontWeight: 300, color: "#fefefe" }} noWrap>
-                                                        {event.title}
-                                                    </Typography>
-                                                    <Typography sx={{ fontSize: 14, color: "#fefefe" }} noWrap>
-                                                        {event.date} — {event.place}
-                                                    </Typography>
-                                                </Box>
-                                                <Box
-                                                    sx={{
-                                                        position: "absolute",
-                                                        bottom: 24,
-                                                        right: 12,
-                                                        fontSize: 18,
-                                                        fontWeight: 500,
-                                                        color: "#fefefe",
-                                                        opacity: 0.8,
-                                                        cursor: "pointer",
-                                                    }}
-                                                >
-                                                    ➤
-                                                </Box>
-                                            </Link>
+                                                    <Box
+                                                        sx={{
+                                                            position: "absolute",
+                                                            bottom: 0,
+                                                            left: 0,
+                                                            width: "100%",
+                                                            height: 75,
+                                                            bgcolor: "rgba(0,0,0,0.6)",
+                                                            px: 2,
+                                                            py: 1,
+                                                            display: "flex",
+                                                            flexDirection: "column",
+                                                            justifyContent: "center",
+                                                            borderBottomLeftRadius: 10,
+                                                            borderBottomRightRadius: 10,
+                                                        }}
+                                                    >
+                                                        <Typography sx={{ fontSize: 20, fontWeight: 300, color: "#fefefe" }} noWrap>
+                                                            {event.title}
+                                                        </Typography>
+                                                        <Typography sx={{ fontSize: 14, color: "#fefefe" }} noWrap>
+                                                            {event.date} — {event.place}
+                                                        </Typography>
+                                                    </Box>
+                                                    <Box
+                                                        sx={{
+                                                            position: "absolute",
+                                                            bottom: 24,
+                                                            right: 12,
+                                                            fontSize: 18,
+                                                            fontWeight: 500,
+                                                            color: "#fefefe",
+                                                            opacity: 0.8,
+                                                            cursor: "pointer",
+                                                        }}
+                                                    >
+                                                        ➤
+                                                    </Box>
+                                                </Link>
+                                            </Box>
                                         </Box>
                                     ))}
                                 </Box>

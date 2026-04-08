@@ -15,10 +15,15 @@ async def auth_middleware(request: Request, call_next):
         "/health",
         "/auth/login",
         "/auth/register",
+        "/events",
+        "/events/",
         "/auth/refresh",
         "/openapi.json",
         "/docs",
         "/docs/oauth2-redirect",
+        "/robots.txt",
+        "/sitemap.xml",
+        "/weather/"
     ]
 
     if any(request.url.path.startswith(path) for path in public_paths):
