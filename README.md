@@ -19,3 +19,13 @@
 1. Установим зависимости: npm install
 
 2. Запустим фронт: npm run dev
+
+Чтобы запустить тесты на бэкэнде:
+python -m pytest backend/tests/ --cov=backend --cov-report=html
+
+Чтобы запустить тесты на фронтенде:
+npm run test:coverage
+
+Чтобы заупстить сквозные тесты:
+
+npx playwright test

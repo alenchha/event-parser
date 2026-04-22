@@ -114,7 +114,8 @@ export const LoginPage = () => {
                                     borderRadius: 3,
                                     height: 50,
                                     fontSize: 18,
-                                    textTransform: "none"
+                                    textTransform: "none",
+                                    zIndex: 10
                                 }}
                                 onClick={handleLogin}
                             >
