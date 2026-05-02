@@ -11,9 +11,9 @@ from google.oauth2 import service_account
 
 reader = None
 
+
 def get_reader():
     global reader
-
 
     if os.getenv("DISABLE_OCR") == "true":
         return None
