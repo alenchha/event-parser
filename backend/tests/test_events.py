@@ -7,19 +7,22 @@ def test_get_events_public(client):
     assert "skip" in response.json()
     assert "limit" in response.json()
 
+
 def test_get_event_not_found(client):
     response = client.get("/events/99999")
-    
+
     assert response.status_code == 404
     assert response.json()["detail"] == "Event not found"
 
+
 def test_events_filtering(client):
     response = client.get("/events/?search=концерт&age_limit=16")
-    
+
     assert response.status_code == 200
     data = response.json()
     assert "items" in data
     assert isinstance(data["items"], list)
+
 
 def test_create_event_invalid_date(client):
         login_resp = client.post("/auth/login", data={"username": "admin", "password": "admin"})

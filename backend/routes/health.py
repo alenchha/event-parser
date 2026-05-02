@@ -5,6 +5,7 @@ from backend.core.db import get_db
 
 router = APIRouter()
 
+
 @router.get("/health", tags=["Health"])
 def health_check(db: Session = Depends(get_db)):
     try:

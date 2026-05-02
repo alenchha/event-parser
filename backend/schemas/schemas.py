@@ -2,6 +2,7 @@ from pydantic import BaseModel, field_validator
 from typing import Optional, List
 import re
 
+
 class UserBase(BaseModel):
     id: Optional[int] = None
     username: str
@@ -10,9 +11,11 @@ class UserBase(BaseModel):
     class Config:
         from_attributes = True
 
+
 class UserCreate(BaseModel):
     username: str
     password: str
+
 
 class EventBase(BaseModel):
     id: Optional[int] = None
@@ -27,11 +30,14 @@ class EventBase(BaseModel):
     image_url: Optional[str] = None
     registration_count: Optional[int] = None
 
+
     class Config:
         from_attributes = True
 
+
 class EventWithParticipants(EventBase):
     participants: List[UserBase] = []
+
 
 class EventListResponse(BaseModel):
     items: List[EventWithParticipants]
@@ -40,23 +46,29 @@ class EventListResponse(BaseModel):
     limit: int
     has_more: bool
 
+
 class UserWithEvents(UserBase):
     role: str
     registered_events: List[EventBase] = []
     avatar_url: Optional[str] = None
 
+
     class Config:
         from_attributes = True
+
 
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
 
+
 class LoginResponse(Token):
     user: 'UserWithEvents'
 
+
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
+
 
 class EventCreate(BaseModel):
     title: str
@@ -69,11 +81,13 @@ class EventCreate(BaseModel):
     event_type: Optional[str] = None
     image_url: Optional[str] = None
 
+
     @field_validator("date")
     def validate_date_format(cls, value):
         if not re.match(r"^\d{2}\.\d{2}\.\d{4}$", value):
             raise ValueError("Дата должна быть в формате ДД.ММ.ГГГГ (например, 31.12.2015)")
         return value
+
 
     @field_validator("time")
     def validate_time_format(cls, value):
@@ -81,9 +95,11 @@ class EventCreate(BaseModel):
             raise ValueError("Время должно быть в формате ЧЧ:ММ (например, 10:30)")
         return value
 
+
 class PasswordChange(BaseModel):
     old_password: str
     new_password: str
+
 
 UserWithEvents.model_rebuild()
 LoginResponse.model_rebuild()

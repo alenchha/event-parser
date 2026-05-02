@@ -9,6 +9,7 @@ from backend.core.s3 import s3_client
 
 router = APIRouter()
 
+
 @router.get("/me", response_model=UserWithEvents)
 def get_my_profile(
     current_user: UserModel = Depends(get_current_user),
@@ -44,6 +45,7 @@ def get_my_profile(
         "avatar_url": avatar_url
     }
 
+
 @router.delete("/me")
 def delete_my_account(
     db: Session = Depends(get_db),
@@ -51,10 +53,11 @@ def delete_my_account(
 ):
     if current_user.avatar_filename:
         s3_client.delete_file(current_user.avatar_filename)
-    
+
     db.delete(current_user)
     db.commit()
     return {"message": "User deleted successfully"}
+
 
 @router.patch("/me/password")
 def change_my_password(
@@ -64,7 +67,7 @@ def change_my_password(
 ):
     if not verify_password(passwords.old_password, current_user.password):
         raise HTTPException(status_code=400, detail="Old password is incorrect")
-    
+
     current_user.password = get_password_hash(passwords.new_password)
     db.commit()
     return {"message": "Password changed successfully"}

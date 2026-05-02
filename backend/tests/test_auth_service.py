@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import MagicMock, patch
 from backend.services.auth_service import AuthService
 
+
 @pytest.mark.asyncio
 async def test_authenticate_user_success():
     mock_user_repo = MagicMock()
@@ -16,6 +17,7 @@ async def test_authenticate_user_success():
         user = service.authenticate_user("admin", "123")
         assert user is not None
         assert user.username == "admin"
+
 
 @pytest.mark.asyncio
 async def test_authenticate_user_wrong_password():

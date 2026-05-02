@@ -9,8 +9,9 @@ def test_create_event_unauthorized(client):
             "capacity": 100
         }
     )
-    
+
     assert response.status_code == 401
+
 
 def test_create_event_with_auth(client):
     login_response = client.post(
@@ -34,11 +35,12 @@ def test_create_event_with_auth(client):
         },
         headers={"Authorization": f"Bearer {token}"}
     )
-    
+
     assert response.status_code == 200
     data = response.json()
     assert "id" in data
     assert data["title"] == "Тестовое событие"
+
 
 def test_create_event_as_user_forbidden(client):
         client.post("/auth/register", json={
@@ -65,4 +67,3 @@ def test_create_event_as_user_forbidden(client):
         )
 
         assert response.status_code == 403
-

@@ -15,6 +15,7 @@ from backend.model.permissons import RequirePermission, Permission
 
 router = APIRouter()
 
+
 def parse_date_dmy(date_str: str) -> Optional[datetime]:
     if not date_str:
         return None
@@ -23,17 +24,18 @@ def parse_date_dmy(date_str: str) -> Optional[datetime]:
         try:
             year, month, day = date_str.split('-')
             return datetime(int(year), int(month), int(day))
-        except:
-            pass
-    
+        except Exception as e:
+            print(e)
+
     if '.' in date_str:
         try:
             day, month, year = date_str.split('.')
             return datetime(int(year), int(month), int(day))
-        except:
-            pass
-    
+        except Exception as e:
+            print(e)
+
     return None
+
 
 @router.get("/", response_model=EventListResponse)
 def get_events(
@@ -79,7 +81,7 @@ def get_events(
 
         if place and place.lower() not in e.place.lower():
             continue
-        
+
         filtered.append(e)
 
     reverse = sort_order == "desc"
@@ -100,7 +102,7 @@ def get_events(
             "registration_count": len(e.participants),
             "participants": e.participants,
         })
-    
+
     return {
         "items": result_items,
         "total": total,
@@ -109,20 +111,29 @@ def get_events(
         "has_more": skip + limit < total
     }
 
+
 @router.post("/parse_image")
-async def parse_image(file: UploadFile = File(...), user=Depends(RequirePermission(Permission.PARSE_IMAGE))):
+async def parse_image(
+    file: UploadFile = File(...),
+    user=Depends(RequirePermission(Permission.PARSE_IMAGE))
+):
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image")
-    
     return await parse_event_from_image(file)
 
+
 @router.post("/create")
-def create_event(event: EventCreate, db: Session = Depends(get_db), user=Depends(RequirePermission(Permission.CREATE_EVENT))):
+def create_event(
+    event: EventCreate,
+    db: Session = Depends(get_db),
+    user=Depends(RequirePermission(Permission.CREATE_EVENT))
+):
     db_event = EventModel(**event.dict())
     db.add(db_event)
     db.commit()
     db.refresh(db_event)
     return db_event
+
 
 @router.get("/{event_id}", response_model=EventBase)
 def get_event(event_id: int, db: Session = Depends(get_db)):
@@ -134,8 +145,13 @@ def get_event(event_id: int, db: Session = Depends(get_db)):
         "registration_count": len(db_event.participants),
     }
 
+
 @router.post("/{event_id}/register")
-def register_for_event(event_id: int, db: Session = Depends(get_db), user=Depends(RequirePermission(Permission.VIEW_EVENTS))):
+def register_for_event(
+    event_id: int,
+    db: Session = Depends(get_db),
+    user=Depends(RequirePermission(Permission.VIEW_EVENTS))
+):
     db_event = db.query(EventModel).filter(EventModel.id == event_id).first()
     if not db_event:
         raise HTTPException(status_code=404, detail="Event not found")
@@ -148,8 +164,13 @@ def register_for_event(event_id: int, db: Session = Depends(get_db), user=Depend
     db.refresh(db_event)
     return {"message": f"{user.username} зарегистрирован(а) на '{db_event.title}'"}
 
+
 @router.delete("/{event_id}/unregister")
-def unregister_from_event(event_id: int, db: Session = Depends(get_db), user=Depends(RequirePermission(Permission.VIEW_EVENTS))):
+def unregister_from_event(
+    event_id: int,
+    db: Session = Depends(get_db),
+    user=Depends(RequirePermission(Permission.VIEW_EVENTS))
+):
     db_event = db.query(EventModel).filter(EventModel.id == event_id).first()
     if not db_event:
         raise HTTPException(status_code=404, detail="Event not found")
@@ -159,8 +180,13 @@ def unregister_from_event(event_id: int, db: Session = Depends(get_db), user=Dep
     db.commit()
     return {"message": f"{user.username} снят(а) с регистрации"}
 
+
 @router.get("/{event_id}/qrcode")
-def get_event_qrcode(event_id: int, db: Session = Depends(get_db), user=Depends(RequirePermission(Permission.VIEW_EVENTS))):
+def get_event_qrcode(
+    event_id: int,
+    db: Session = Depends(get_db),
+    user=Depends(RequirePermission(Permission.VIEW_EVENTS))
+):
     db_event = db.query(EventModel).filter(EventModel.id == event_id).first()
     if not db_event:
         raise HTTPException(status_code=404, detail="Event not found")
@@ -171,8 +197,14 @@ def get_event_qrcode(event_id: int, db: Session = Depends(get_db), user=Depends(
     buf.seek(0)
     return StreamingResponse(buf, media_type="image/png")
 
+
 @router.patch("/{event_id}")
-def patch_event(event_id: int, partial_event: dict, db: Session = Depends(get_db), user=Depends(RequirePermission(Permission.EDIT_EVENT))):
+def patch_event(
+    event_id: int,
+    partial_event: dict,
+    db: Session = Depends(get_db),
+    user=Depends(RequirePermission(Permission.EDIT_EVENT))
+):
     db_event = db.query(EventModel).filter(EventModel.id == event_id).first()
     if not db_event:
         raise HTTPException(status_code=404, detail="Event not found")
@@ -204,8 +236,13 @@ def patch_event(event_id: int, partial_event: dict, db: Session = Depends(get_db
     db.refresh(db_event)
     return {"message": "Event updated", "event": db_event}
 
+
 @router.delete("/{event_id}")
-def delete_event(event_id: int, db: Session = Depends(get_db), user=Depends(RequirePermission(Permission.DELETE_EVENT))):
+def delete_event(
+    event_id: int,
+    db: Session = Depends(get_db),
+    user=Depends(RequirePermission(Permission.DELETE_EVENT))
+):
     db_event = db.query(EventModel).filter(EventModel.id == event_id).first()
     if not db_event:
         raise HTTPException(status_code=404, detail="Event not found")
