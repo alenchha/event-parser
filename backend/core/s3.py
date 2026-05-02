@@ -23,8 +23,12 @@ class S3Client:
 
         try:
             self.client.head_bucket(Bucket=self.bucket)
-        except:
-            self.client.create_bucket(Bucket=self.bucket)
+        except ClientError as e:
+            error_code = e.response['Error']['Code']
+            if error_code == '404':
+                self.client.create_bucket(Bucket=self.bucket)
+            else:
+                raise
 
     def upload_file(self, file, filename: str) -> str:
         self.client.upload_fileobj(file, self.bucket, filename)

@@ -32,7 +32,7 @@ class TokenRepository:
     def get_refresh_token(self, token_id: str) -> RefreshToken:
         return self.db.query(RefreshToken).filter(
             RefreshToken.token == token_id,
-            RefreshToken.is_revoked == False,
+            RefreshToken.is_revoked.is_(False),
             RefreshToken.expires_at > datetime.utcnow()
         ).first()
 
