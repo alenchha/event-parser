@@ -3,7 +3,6 @@ import re
 import json
 from fastapi import UploadFile
 from PIL import Image
-import easyocr
 import os
 
 from google import genai
@@ -15,6 +14,7 @@ reader = None
 def get_reader():
     global reader
 
+
     if os.getenv("DISABLE_OCR") == "true":
         return None
 
@@ -23,6 +23,7 @@ def get_reader():
         reader = easyocr.Reader(['ru', 'en'])
 
     return reader
+
 
 SERVICE_ACCOUNT_JSON = "backend/ai/key.json"
 
