@@ -27,7 +27,7 @@ jobs:
               run: flake8 backend --max-line-length=100
 
             - name: Run backend tests
-              run: PYTHONPATH=. pytest backend/tests/
+              run: PYTHONPATH=. DISABLE_OCR=true pytest backend/tests/
 
             - name: Set up Node
               uses: actions/setup-node@v3

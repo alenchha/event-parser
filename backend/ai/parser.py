@@ -4,12 +4,25 @@ import json
 from fastapi import UploadFile
 from PIL import Image
 import easyocr
+import os
 
 from google import genai
 from google.genai.types import HttpOptions
 from google.oauth2 import service_account
 
-reader = easyocr.Reader(['ru', 'en'])
+reader = None
+
+def get_reader():
+    global reader
+
+    if os.getenv("DISABLE_OCR") == "true":
+        return None
+
+    if reader is None:
+        import easyocr
+        reader = easyocr.Reader(['ru', 'en'])
+
+    return reader
 
 SERVICE_ACCOUNT_JSON = "backend/ai/key.json"
 
@@ -32,8 +45,11 @@ MODEL_NAME = "gemini-2.5-flash"
 async def parse_event_from_image(file: UploadFile) -> dict:
     contents = await file.read()
     img = Image.open(io.BytesIO(contents))
-    results = reader.readtext(img)
-    ocr_text = "\n".join([text for (_, text, _) in results])
+    ocr_text = ""
+    reader = get_reader()
+    if reader:
+        results = reader.readtext(img)
+        ocr_text = "\n".join([text for (_, text, _) in results])
 
     prompt = f"""
 Ты помощник по структуре афиш мероприятий.
