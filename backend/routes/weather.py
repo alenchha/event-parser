@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from ..services.weather import get_weather
+from backend.services.weather import get_weather
 
 router = APIRouter()
 

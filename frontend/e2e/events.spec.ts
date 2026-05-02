@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('События', () => {
     test.setTimeout(60000);
     test.beforeEach(async ({ page }) => {
-        await page.goto('http://localhost:5173/');
+        await page.goto('http://localhost/');
         await page.fill('input[placeholder="ivanovii25"]', 'admin');
         await page.fill('input[placeholder="12345678"]', 'admin');
         await page.click('button:has-text("Login")');
@@ -26,12 +26,12 @@ test.describe('События', () => {
     });
 
     test('пользователь может просматривать детали события', async ({ page }) => {
-        await page.goto('http://localhost:5173/events/1');
+        await page.goto('http://localhost/events/1');
         await expect(page.locator('text=Регистрация')).toBeVisible({ timeout: 10000 });
     });
 
     test('фильтрация событий работает', async ({ page }) => {
-        await page.goto('http://localhost:5173/events');
+        await page.goto('http://localhost/events');
         await page.getByLabel('Поиск по названию').fill('концерт');
         await expect(page).toHaveURL(/.*search=/);
     });

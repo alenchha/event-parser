@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Response, Depends
 from sqlalchemy.orm import Session
-from ..core.db import get_db
-from ..model.models import Event as EventModel
+from backend.core.db import get_db
+from backend.model.models import Event as EventModel
 
 router = APIRouter()
 
@@ -24,12 +24,12 @@ async def sitemap_xml(db: Session = Depends(get_db)):
     events = db.query(EventModel).all()
     
     urls = [
-        "<url><loc>http://localhost:5173/events</loc><priority>0.9</priority></url>"
+        "<url><loc>http://localhost/events</loc><priority>0.9</priority></url>"
     ]
     
     for event in events:
         urls.append(
-            f"<url><loc>http://localhost:5173/events/{event.id}</loc>"
+            f"<url><loc>http://localhost/events/{event.id}</loc>"
             f"<lastmod>{event.date}</lastmod>"
             f"<priority>0.8</priority></url>"
         )

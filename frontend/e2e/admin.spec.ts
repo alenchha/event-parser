@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Админ-панель', () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto('http://localhost:5173/');
+        await page.goto('http://localhost/');
         await page.fill('input[placeholder="ivanovii25"]', 'admin');
         await page.fill('input[placeholder="12345678"]', 'admin');
         await page.click('button:has-text("Login")');
@@ -26,7 +26,7 @@ test.describe('Админ-панель', () => {
         await expect(page.locator('.MuiAlert-message')).toBeVisible({ timeout: 10000 });
         
         await page.waitForTimeout(2000);
-        await page.goto('http://localhost:5173/events/1');
+        await page.goto('http://localhost/events/1');
         
         await page.click('button:has-text("Delete")');
         await page.click('button:has-text("Удалить")');

@@ -6,12 +6,12 @@ import qrcode
 from typing import Optional
 from datetime import datetime
 
-from ..core.db import get_db
-from ..model.models import Event as EventModel
-from ..schemas.schemas import EventCreate, EventWithParticipants, EventBase, EventListResponse
-from ..dependencies.dependencies import get_current_user
-from ..ai.parser import parse_event_from_image
-from ..model.permissons import RequirePermission, Permission
+from backend.core.db import get_db
+from backend.model.models import Event as EventModel
+from backend.schemas.schemas import EventCreate, EventWithParticipants, EventBase, EventListResponse
+from backend.dependencies.dependencies import get_current_user
+from backend.ai.parser import parse_event_from_image
+from backend.model.permissons import RequirePermission, Permission
 
 router = APIRouter()
 

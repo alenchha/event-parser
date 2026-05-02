@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
-from ..model.models import RefreshToken
+from backend.model.models import RefreshToken
 import uuid
 
 class TokenRepository:

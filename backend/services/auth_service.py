@@ -3,15 +3,15 @@ from jose import jwt
 from datetime import datetime, timedelta
 from typing import Optional, Tuple
 
-from ..core.config import (
+from backend.core.config import (
     SECRET_KEY, ALGORITHM, 
     ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS,
     verify_password, get_password_hash
 )
-from ..model.models import User
-from ..repositories.token_repository import TokenRepository
-from ..repositories.user_repository import UserRepository
-from ..schemas.schemas import UserCreate
+from backend.model.models import User
+from backend.repositories.token_repository import TokenRepository
+from backend.repositories.user_repository import UserRepository
+from backend.schemas.schemas import UserCreate
 
 class AuthService:
     def __init__(self, db: Session):

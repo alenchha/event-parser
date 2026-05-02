@@ -3,10 +3,10 @@ from sqlalchemy.orm import Session
 import uuid
 import os
 
-from ..core.db import get_db
-from ..core.s3 import s3_client
-from ..model.models import User as UserModel
-from ..dependencies.dependencies import get_current_user
+from backend.core.db import get_db
+from backend.core.s3 import s3_client
+from backend.model.models import User as UserModel
+from backend.dependencies.dependencies import get_current_user
 
 router = APIRouter()
 

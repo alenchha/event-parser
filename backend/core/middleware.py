@@ -2,9 +2,9 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 from jose import jwt, JWTError
 
-from ..core.db import SessionLocal
-from ..model.models import User
-from ..core.config import SECRET_KEY, ALGORITHM
+from backend.core.db import SessionLocal
+from backend.model.models import User
+from backend.core.config import SECRET_KEY, ALGORITHM
 
 
 async def auth_middleware(request: Request, call_next):

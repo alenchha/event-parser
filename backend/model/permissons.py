@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Set, Dict
 from fastapi import HTTPException, Depends
 
-from ..dependencies.dependencies import get_current_user
+from backend.dependencies.dependencies import get_current_user
 from .models import User
 
 class Permission(str, Enum):

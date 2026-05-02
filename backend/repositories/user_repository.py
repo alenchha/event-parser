@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from typing import Optional, List
-from ..model.models import User
+from backend.model.models import User
 
 class UserRepository:
     def __init__(self, db: Session):

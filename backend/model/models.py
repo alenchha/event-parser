@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Table, Boolean, DateTime
 from sqlalchemy.orm import relationship
-from ..core.db import Base
+from backend.core.db import Base
 from datetime import datetime
 
 user_events = Table(

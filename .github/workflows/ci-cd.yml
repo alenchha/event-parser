@@ -1,0 +1,73 @@
+name: CI/CD Pipeline
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+
+jobs:
+    build-test:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+
+            - name: Set up Python
+              uses: actions/setup-python@v4
+              with:
+                  python-version: '3.11'
+
+            - name: Install backend dependencies
+              run: |
+                  pip install -r backend/requirements.txt
+                  pip install flake8
+
+            - name: Lint backend
+              run: flake8 backend --max-line-length=100
+
+            - name: Run backend tests
+              run: pytest backend/tests/
+
+            - name: Set up Node
+              uses: actions/setup-node@v3
+              with:
+                  node-version: '20'
+
+            - name: Install frontend dependencies
+              run: |
+                  cd frontend
+                  npm install
+
+            - name: Lint frontend
+              run: |
+                  cd frontend
+                  npm run lint || true
+
+            - name: Run frontend tests
+              run: |
+                  cd frontend
+                  npm run test
+
+            - name: Build frontend
+              run: |
+                  cd frontend
+                  npm run build
+
+            - name: Build Docker images
+              run: docker compose build
+
+            - name: Run containers
+              run: |
+                  docker compose up -d
+                  sleep 20
+                  docker compose ps
+
+            - name: Check backend health
+              run: curl -f http://localhost:8000/health
+
+            - name: Check frontend доступ
+              run: curl -f http://localhost
+
+            - name: Stop containers
+              run: docker compose down

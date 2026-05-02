@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Аватарки (S3 хранилище)', () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto('http://localhost:5173/');
+        await page.goto('http://localhost/');
         await page.fill('input[placeholder="ivanovii25"]', 'admin');
         await page.fill('input[placeholder="12345678"]', 'admin');
         await page.click('button:has-text("Login")', { force: true });

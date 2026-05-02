@@ -1,11 +1,11 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from ..core.db import get_db
-from ..model.models import User as UserModel
-from ..schemas.schemas import UserWithEvents, PasswordChange, EventBase
-from ..dependencies.dependencies import get_current_user
-from ..core.config import get_password_hash, verify_password
-from ..core.s3 import s3_client
+from backend.core.db import get_db
+from backend.model.models import User as UserModel
+from backend.schemas.schemas import UserWithEvents, PasswordChange, EventBase
+from backend.dependencies.dependencies import get_current_user
+from backend.core.config import get_password_hash, verify_password
+from backend.core.s3 import s3_client
 
 router = APIRouter()
 

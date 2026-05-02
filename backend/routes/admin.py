@@ -2,11 +2,11 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from typing import List
 
-from ..core.db import get_db
-from ..model.models import User as UserModel
-from ..schemas.schemas import UserWithEvents
-from ..dependencies.dependencies import get_current_user
-from ..model.permissons import RequirePermission, Permission
+from backend.core.db import get_db
+from backend.model.models import User as UserModel
+from backend.schemas.schemas import UserWithEvents
+from backend.dependencies.dependencies import get_current_user
+from backend.model.permissons import RequirePermission, Permission
 
 router = APIRouter()
 
