@@ -4,10 +4,12 @@ import uuid
 import os
 
 from backend.core.db import get_db
-from backend.core.s3 import s3_client
+from backend.core.s3 import get_s3_client
 from backend.dependencies.dependencies import get_current_user
 
 router = APIRouter()
+
+s3_client = get_s3_client()
 
 ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp'}
 MAX_FILE_SIZE = 5 * 1024 * 1024

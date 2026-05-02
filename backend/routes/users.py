@@ -5,9 +5,11 @@ from backend.model.models import User as UserModel
 from backend.schemas.schemas import UserWithEvents, PasswordChange, EventBase
 from backend.dependencies.dependencies import get_current_user
 from backend.core.config import get_password_hash, verify_password
-from backend.core.s3 import s3_client
+from backend.core.s3 import get_s3_client
 
 router = APIRouter()
+
+s3_client = get_s3_client()
 
 
 @router.get("/me", response_model=UserWithEvents)
