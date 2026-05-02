@@ -28,17 +28,17 @@ jobs:
 
             - name: Create key.json safely
               run: |
-                python - << 'EOF'
-                import os, json
+                  python - << 'EOF'
+                  import os, json
 
-                data = os.environ["KEY_PARSER"]
-                obj = json.loads(data)
+                  data = os.environ["KEY_PARSER"]
+                  obj = json.loads(data)
 
-                with open("backend/ai/key.json", "w") as f:
-                    json.dump(obj, f)
-                EOF
+                  with open("backend/ai/key.json", "w") as f:
+                      json.dump(obj, f)
+                  EOF
               env:
-                GCP_SERVICE_ACCOUNT_JSON: ${{ secrets.KEY_PARSER }}
+                  KEY_PARSER: ${{ secrets.KEY_PARSER }}
 
             - name: Run backend tests
               run: PYTHONPATH=. DISABLE_OCR=true pytest backend/tests/
