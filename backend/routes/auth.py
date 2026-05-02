@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from typing import Optional
 
 from backend.core.db import get_db
 from backend.schemas.schemas import UserCreate, Token, RefreshTokenRequest
@@ -10,6 +9,7 @@ from backend.services.auth_service import AuthService
 from backend.model.models import User as UserModel
 
 router = APIRouter()
+
 
 def set_refresh_token_cookie(response: Response, refresh_token: str):
     response.set_cookie(
@@ -22,13 +22,15 @@ def set_refresh_token_cookie(response: Response, refresh_token: str):
         path="/"
     )
 
+
 def clear_refresh_token_cookie(response: Response):
     response.delete_cookie(key="refresh_token", path="/")
+
 
 @router.post("/register")
 def register(user: UserCreate, db: Session = Depends(get_db)):
     auth_service = AuthService(db)
-    
+
     try:
         new_user = auth_service.register_user(user)
         return {
@@ -37,6 +39,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
         }
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
 
 @router.post("/login", response_model=Token)
 def login(
@@ -54,11 +57,12 @@ def login(
     access_token, refresh_token = auth_service.create_tokens(user, user_agent)
 
     set_refresh_token_cookie(response, refresh_token)
-    
+
     return {
         "access_token": access_token,
         "token_type": "bearer"
     }
+
 
 @router.post("/refresh", response_model=Token)
 async def refresh_token(
@@ -73,7 +77,7 @@ async def refresh_token(
 
     if not refresh_token:
         raise HTTPException(status_code=401, detail="Refresh token not found")
-    
+
     try:
         user_agent = request.headers.get("user-agent")
         new_access_token, new_refresh_token = auth_service.refresh_tokens(
@@ -81,13 +85,14 @@ async def refresh_token(
         )
 
         set_refresh_token_cookie(response, new_refresh_token)
-        
+
         return {
             "access_token": new_access_token,
             "token_type": "bearer"
         }
     except ValueError as e:
         raise HTTPException(status_code=401, detail=str(e))
+
 
 @router.post("/logout")
 def logout(
@@ -98,10 +103,10 @@ def logout(
 ):
     auth_service = AuthService(db)
     refresh_token = request.cookies.get("refresh_token")
-    
+
     if refresh_token:
         auth_service.logout(refresh_token)
-    
+
     clear_refresh_token_cookie(response)
-    
+
     return {"message": "Successfully logged out"}

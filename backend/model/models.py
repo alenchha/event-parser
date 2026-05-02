@@ -10,6 +10,7 @@ user_events = Table(
     Column("event_id", Integer, ForeignKey("events.id"))
 )
 
+
 class User(Base):
     __tablename__ = "users"
 
@@ -24,6 +25,7 @@ class User(Base):
         secondary=user_events,
         back_populates="participants"
     )
+
 
 class Event(Base):
     __tablename__ = "events"
@@ -45,13 +47,15 @@ class Event(Base):
         back_populates="registered_events"
     )
 
+
     @property
     def registration_count(self):
         return len(self.participants)
-    
+
+
 class RefreshToken(Base):
     __tablename__ = "refresh_tokens"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     token = Column(String, unique=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))

@@ -2,7 +2,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 from backend.core.db import Base, engine
 from backend.core.middleware import auth_middleware
-import backend.model.models as models
 from backend.routes import health, events, users, auth, admin, upload, seo, weather
 
 Base.metadata.create_all(bind=engine)

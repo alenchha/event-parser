@@ -10,6 +10,7 @@ from backend.model.permissons import RequirePermission, Permission
 
 router = APIRouter()
 
+
 @router.get("/users", response_model=List[UserWithEvents])
 def get_all_users(
     db: Session = Depends(get_db),
@@ -17,6 +18,7 @@ def get_all_users(
 ):
     users = db.query(UserModel).all()
     return users
+
 
 @router.put("/users/{user_id}/role")
 def change_user_role(
@@ -30,15 +32,15 @@ def change_user_role(
             status_code=400, 
             detail="Недопустимая роль. Доступные роли: user, admin"
         )
-    
+
     user = db.query(UserModel).filter(UserModel.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    
+
     old_role = user.role
     user.role = new_role
     db.commit()
-    
+
     return {
         "message": f"Роль пользователя {user.username} изменена",
         "old_role": old_role,

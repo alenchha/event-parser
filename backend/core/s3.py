@@ -2,6 +2,7 @@ import boto3
 from botocore.exceptions import ClientError
 import os
 
+
 class S3Client:
     def __init__(self):
         self.internal_endpoint = os.getenv("MINIO_ENDPOINT", "http://minio:9000")
@@ -10,7 +11,7 @@ class S3Client:
         self.secret_key = os.getenv("MINIO_SECRET_KEY", "minioadmin")
         self.bucket = os.getenv("MINIO_BUCKET", "events")
         self.use_ssl = os.getenv("MINIO_USE_SSL", "false").lower() == "true"
-        
+
         self.client = boto3.client(
             's3',
             endpoint_url=self.internal_endpoint,
@@ -24,11 +25,13 @@ class S3Client:
             self.client.head_bucket(Bucket=self.bucket)
         except:
             self.client.create_bucket(Bucket=self.bucket)
-    
+
+
     def upload_file(self, file, filename: str) -> str:
         self.client.upload_fileobj(file, self.bucket, filename)
         return filename
-    
+
+
     def get_presigned_url(self, filename: str, expires: int = 3600) -> str:
         if not filename:
             return None
@@ -40,14 +43,16 @@ class S3Client:
 
         internal_endpoint = os.getenv("MINIO_ENDPOINT", "http://minio:9000")
         public_endpoint = os.getenv("MINIO_PUBLIC_URL", "http://localhost:9000")
-    
+
         return url.replace(internal_endpoint, public_endpoint)
-    
+
+
     def delete_file(self, filename: str) -> bool:
         try:
             self.client.delete_object(Bucket=self.bucket, Key=filename)
             return True
         except ClientError:
             return False
+
 
 s3_client = S3Client()

@@ -8,8 +8,7 @@ from datetime import datetime
 
 from backend.core.db import get_db
 from backend.model.models import Event as EventModel
-from backend.schemas.schemas import EventCreate, EventWithParticipants, EventBase, EventListResponse
-from backend.dependencies.dependencies import get_current_user
+from backend.schemas.schemas import EventCreate, EventBase, EventListResponse
 from backend.ai.parser import parse_event_from_image
 from backend.model.permissons import RequirePermission, Permission
 

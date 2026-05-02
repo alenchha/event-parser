@@ -28,7 +28,7 @@ async def auth_middleware(request: Request, call_next):
 
     if any(request.url.path.startswith(path) for path in public_paths):
         return await call_next(request)
-    
+
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
         return JSONResponse(status_code=401, content={"detail": "Token missing"})
