@@ -55,7 +55,9 @@ class S3Client:
         except ClientError:
             return False
 
+
 s3_client = None
+
 
 def get_s3_client():
     global s3_client
