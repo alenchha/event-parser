@@ -22,15 +22,12 @@ jobs:
               run: |
                   pip install -r backend/requirements.txt
                   pip install flake8
-            
-            - name: Set PYTHONPATH
-              run: echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
 
             - name: Lint backend
               run: flake8 backend --max-line-length=100
 
             - name: Run backend tests
-              run: pytest backend/tests/
+              run: PYTHONPATH=. pytest backend/tests/
 
             - name: Set up Node
               uses: actions/setup-node@v3
