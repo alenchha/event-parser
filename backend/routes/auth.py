@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from backend.core.db import get_db
-from backend.schemas.schemas import UserCreate, Token, RefreshTokenRequest
+from backend.schemas.schemas import UserCreate, Token
 from backend.dependencies.dependencies import get_current_user
 from backend.services.auth_service import AuthService
 from backend.model.models import User as UserModel
@@ -34,7 +34,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     try:
         new_user = auth_service.register_user(user)
         return {
-            "message": "User registered successfully", 
+            "message": "User registered successfully",
             "user_id": new_user.id
         }
     except ValueError as e:
@@ -45,7 +45,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 def login(
     response: Response,
     request: Request,
-    form_data: OAuth2PasswordRequestForm = Depends(), 
+    form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
     auth_service = AuthService(db)

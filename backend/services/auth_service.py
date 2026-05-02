@@ -20,7 +20,6 @@ class AuthService:
         self.token_repo = TokenRepository(db)
         self.user_repo = UserRepository(db)
 
-
     def register_user(self, user_data: UserCreate) -> User:
         if self.user_repo.user_exists(user_data.username):
             raise ValueError("User already exists")
@@ -34,13 +33,11 @@ class AuthService:
 
         return db_user
 
-
     def authenticate_user(self, username: str, password: str) -> Optional[User]:
         user = self.user_repo.get_user_by_username(username)
         if not user or not verify_password(password, user.password):
             return None
         return user
-
 
     def create_tokens(self, user: User, user_agent: str = None) -> Tuple[str, str]:
         db_refresh_token = self.token_repo.create_refresh_token(
@@ -55,7 +52,6 @@ class AuthService:
         )
         return access_token, refresh_token
 
-
     def refresh_tokens(self, refresh_token: str, user_agent: str = None) -> Tuple[str, str]:
         try:
             payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -67,7 +63,7 @@ class AuthService:
 
             if not username or not jti:
                 raise ValueError("Invalid token")
- 
+
         except jwt.JWTError:
             raise ValueError("Invalid token")
 
@@ -94,7 +90,6 @@ class AuthService:
 
         return new_access_token, new_refresh_token
 
-
     def logout(self, refresh_token: str) -> bool:
         try:
             payload = jwt.decode(
@@ -112,7 +107,6 @@ class AuthService:
 
         return False
 
-
     def _create_access_token(self, data: dict) -> str:
         to_encode = data.copy()
         expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -121,7 +115,6 @@ class AuthService:
             "type": "access"
         })
         return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-
 
     def _create_refresh_token(self, data: dict, jti: str) -> str:
         to_encode = data.copy()

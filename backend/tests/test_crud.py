@@ -43,27 +43,27 @@ def test_create_event_with_auth(client):
 
 
 def test_create_event_as_user_forbidden(client):
-        client.post("/auth/register", json={
-            "username": "testuser",
-            "password": "testpass"
-        })
+    client.post("/auth/register", json={
+        "username": "testuser",
+        "password": "testpass"
+    })
 
-        login_resp = client.post(
-            "/auth/login",
-            data={"username": "testuser", "password": "testpass"}
-        )
-        token = login_resp.json()["access_token"]
+    login_resp = client.post(
+        "/auth/login",
+        data={"username": "testuser", "password": "testpass"}
+    )
+    token = login_resp.json()["access_token"]
 
-        response = client.post(
-            "/events/create",
-            json={
-                "title": "Запрещённое событие",
-                "date": "01.01.2026",
-                "time": "12:00",
-                "place": "Москва",
-                "capacity": 50
-            },
-            headers={"Authorization": f"Bearer {token}"}
-        )
+    response = client.post(
+        "/events/create",
+        json={
+            "title": "Запрещённое событие",
+            "date": "01.01.2026",
+            "time": "12:00",
+            "place": "Москва",
+            "capacity": 50
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
-        assert response.status_code == 403
+    assert response.status_code == 403

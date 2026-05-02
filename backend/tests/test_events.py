@@ -25,20 +25,20 @@ def test_events_filtering(client):
 
 
 def test_create_event_invalid_date(client):
-        login_resp = client.post("/auth/login", data={"username": "admin", "password": "admin"})
-        token = login_resp.json()["access_token"]
+    login_resp = client.post("/auth/login", data={"username": "admin", "password": "admin"})
+    token = login_resp.json()["access_token"]
 
-        response = client.post(
-            "/events/create",
-            json={
-                "title": "Неверная дата",
-                "date": "31.12.20266",
-                "time": "12:00",
-                "place": "Москва",
-                "capacity": 100
-            },
-            headers={"Authorization": f"Bearer {token}"}
-        )
+    response = client.post(
+        "/events/create",
+        json={
+            "title": "Неверная дата",
+            "date": "31.12.20266",
+            "time": "12:00",
+            "place": "Москва",
+            "capacity": 100
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
 
-        assert response.status_code == 422
-        assert "Дата должна быть в формате" in response.text
+    assert response.status_code == 422
+    assert "Дата должна быть в формате" in response.text

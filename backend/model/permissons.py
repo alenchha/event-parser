@@ -36,11 +36,10 @@ class RequirePermission:
     def __init__(self, permission: Permission):
         self.permission = permission
 
-
     def __call__(self, current_user: User = Depends(get_current_user)):
         if not has_permission(current_user, self.permission):
             raise HTTPException(
-                status_code=403, 
+                status_code=403,
                 detail="Недостаточно прав. Требуются права администратора."
             )
         return current_user

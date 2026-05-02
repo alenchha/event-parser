@@ -26,11 +26,9 @@ class S3Client:
         except:
             self.client.create_bucket(Bucket=self.bucket)
 
-
     def upload_file(self, file, filename: str) -> str:
         self.client.upload_fileobj(file, self.bucket, filename)
         return filename
-
 
     def get_presigned_url(self, filename: str, expires: int = 3600) -> str:
         if not filename:
@@ -45,7 +43,6 @@ class S3Client:
         public_endpoint = os.getenv("MINIO_PUBLIC_URL", "http://localhost:9000")
 
         return url.replace(internal_endpoint, public_endpoint)
-
 
     def delete_file(self, filename: str) -> bool:
         try:

@@ -30,7 +30,6 @@ class EventBase(BaseModel):
     image_url: Optional[str] = None
     registration_count: Optional[int] = None
 
-
     class Config:
         from_attributes = True
 
@@ -51,7 +50,6 @@ class UserWithEvents(UserBase):
     role: str
     registered_events: List[EventBase] = []
     avatar_url: Optional[str] = None
-
 
     class Config:
         from_attributes = True
@@ -81,13 +79,11 @@ class EventCreate(BaseModel):
     event_type: Optional[str] = None
     image_url: Optional[str] = None
 
-
     @field_validator("date")
     def validate_date_format(cls, value):
         if not re.match(r"^\d{2}\.\d{2}\.\d{4}$", value):
             raise ValueError("Дата должна быть в формате ДД.ММ.ГГГГ (например, 31.12.2015)")
         return value
-
 
     @field_validator("time")
     def validate_time_format(cls, value):

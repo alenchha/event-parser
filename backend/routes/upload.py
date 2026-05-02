@@ -17,13 +17,13 @@ MAX_FILE_SIZE = 5 * 1024 * 1024
 async def upload_avatar(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user=Depends(get_current_user)
 ):
     file_ext = os.path.splitext(file.filename)[1].lower()
     if file_ext not in ALLOWED_EXTENSIONS:
         raise HTTPException(
-            status_code = 400,
-            detail = f"Неверный формат. Разрешены: {', '.join(ALLOWED_EXTENSIONS)}"
+            status_code=400,
+            detail=f"Неверный формат. Разрешены: {', '.join(ALLOWED_EXTENSIONS)}"
         )
 
     file.file.seek(0, 2)
@@ -32,8 +32,8 @@ async def upload_avatar(
 
     if size > MAX_FILE_SIZE:
         raise HTTPException(
-            status_code = 400,
-            detail = f"Файл слишком большой. Максимум {MAX_FILE_SIZE // (1024*1024)} MB"
+            status_code=400,
+            detail=f"Файл слишком большой. Максимум {MAX_FILE_SIZE // (1024*1024)} MB"
         )
 
     filename = f"avatars/{current_user.id}/{uuid.uuid4()}{file_ext}"
@@ -53,10 +53,10 @@ async def upload_avatar(
 @router.get("/users/me/avatar")
 async def get_my_avatar(
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user=Depends(get_current_user)
 ):
     if not current_user.avatar_filename:
-        raise HTTPException(status_code = 404, detail = "Avatar not found")
+        raise HTTPException(status_code=404, detail="Avatar not found")
 
     presigned_url = s3_client.get_presigned_url(current_user.avatar_filename)
     return {"avatar_url": presigned_url}
@@ -65,7 +65,7 @@ async def get_my_avatar(
 @router.delete("/users/me/avatar")
 async def delete_avatar(
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user=Depends(get_current_user)
 ):
     if current_user.avatar_filename:
         s3_client.delete_file(current_user.avatar_filename)

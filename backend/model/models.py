@@ -47,7 +47,6 @@ class Event(Base):
         back_populates="registered_events"
     )
 
-
     @property
     def registration_count(self):
         return len(self.participants)

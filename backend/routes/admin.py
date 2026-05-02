@@ -5,7 +5,6 @@ from typing import List
 from backend.core.db import get_db
 from backend.model.models import User as UserModel
 from backend.schemas.schemas import UserWithEvents
-from backend.dependencies.dependencies import get_current_user
 from backend.model.permissons import RequirePermission, Permission
 
 router = APIRouter()
@@ -29,7 +28,7 @@ def change_user_role(
 ):
     if new_role not in ["user", "admin"]:
         raise HTTPException(
-            status_code=400, 
+            status_code=400,
             detail="Недопустимая роль. Доступные роли: user, admin"
         )
 
