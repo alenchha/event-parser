@@ -68,6 +68,20 @@ jobs:
                   cd frontend
                   npm run build
 
+            - name: Create .env file
+              run: |
+                  echo "WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}" >> .env
+                  echo "ADMIN_USERNAME=${{ secrets.ADMIN_USERNAME }}" >> .env
+                  echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> .env
+                  echo "MINIO_ROOT_USER=${{ secrets.MINIO_ROOT_USER }}" >> .env
+                  echo "MINIO_ROOT_PASSWORD=${{ secrets.MINIO_ROOT_PASSWORD }}" >> .env
+                  echo "MINIO_ACCESS_KEY=${{ secrets.MINIO_ROOT_USER }}" >> .env
+                  echo "MINIO_SECRET_KEY=${{ secrets.MINIO_ROOT_PASSWORD }}" >> .env
+                  echo "MINIO_BUCKET=events" >> .env
+                  echo "MINIO_ENDPOINT=http://minio:9000" >> .env
+                  echo "MINIO_PUBLIC_URL=http://localhost:9000" >> .env
+                  echo "DATABASE_URL=sqlite:////app/data/app.db" >> .env
+
             - name: Build Docker images
               run: docker compose build
 
