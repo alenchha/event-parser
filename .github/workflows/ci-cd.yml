@@ -100,20 +100,20 @@ jobs:
             - name: Check MinIO container health status
               run: docker inspect minio --format='{{.State.Health.Status}}' | grep -q healthy
 
-            - name: Stop containers
-              run: docker compose down
-
             - name: Test resilience - restart backend
               run: |
-                docker compose restart backend
-                sleep 5
-                curl -f http://localhost:8000/health
+                  docker compose restart backend
+                  sleep 5
+                  curl -f http://localhost:8000/health
 
             - name: Test resilience - minio failure simulation
               run: |
-                docker compose stop minio
-                sleep 5
-                curl -f http://localhost:8000/health || true
-                docker compose start minio
-                sleep 10
-                curl -f http://localhost:8000/health
+                  docker compose stop minio
+                  sleep 5
+                  curl -f http://localhost:8000/health || true
+                  docker compose start minio
+                  sleep 10
+                  curl -f http://localhost:8000/health
+
+            - name: Stop containers
+              run: docker compose down
