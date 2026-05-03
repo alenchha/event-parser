@@ -9,8 +9,6 @@ from backend.core.s3 import get_s3_client
 
 router = APIRouter()
 
-s3_client = get_s3_client()
-
 
 @router.get("/me", response_model=UserWithEvents)
 def get_my_profile(
@@ -18,6 +16,7 @@ def get_my_profile(
     db: Session = Depends(get_db)
 ):
     avatar_url = None
+    s3_client = get_s3_client()
     if current_user.avatar_filename:
         avatar_url = s3_client.get_presigned_url(current_user.avatar_filename)
 
@@ -54,6 +53,7 @@ def delete_my_account(
     current_user: UserModel = Depends(get_current_user),
 ):
     if current_user.avatar_filename:
+        s3_client = get_s3_client()
         s3_client.delete_file(current_user.avatar_filename)
 
     db.delete(current_user)

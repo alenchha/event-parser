@@ -9,8 +9,6 @@ from backend.dependencies.dependencies import get_current_user
 
 router = APIRouter()
 
-s3_client = get_s3_client()
-
 ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp'}
 MAX_FILE_SIZE = 5 * 1024 * 1024
 
@@ -39,6 +37,7 @@ async def upload_avatar(
         )
 
     filename = f"avatars/{current_user.id}/{uuid.uuid4()}{file_ext}"
+    s3_client = get_s3_client()
 
     try:
         saved_filename = s3_client.upload_file(file.file, filename)
@@ -59,7 +58,7 @@ async def get_my_avatar(
 ):
     if not current_user.avatar_filename:
         raise HTTPException(status_code=404, detail="Avatar not found")
-
+    s3_client = get_s3_client()
     presigned_url = s3_client.get_presigned_url(current_user.avatar_filename)
     return {"avatar_url": presigned_url}
 
@@ -70,6 +69,7 @@ async def delete_avatar(
     current_user=Depends(get_current_user)
 ):
     if current_user.avatar_filename:
+        s3_client = get_s3_client()
         s3_client.delete_file(current_user.avatar_filename)
         current_user.avatar_filename = None
         db.commit()
